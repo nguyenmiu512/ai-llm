@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PILA - Hệ thống Báo cáo Blockchain & Định danh Số</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #040d1a;
+    --surface: #081426;
+    --surface2: #0c1d35;
+    --surface3: #0f2444;
+    --border: #1a3a5c;
+    --border2: #1f4570;
+    --accent: #00c6ff;
+    --accent2: #0072ff;
+    --accent-green: #00e5a0;
+    --accent-orange: #ff8c42;
+    --accent-purple: #a855f7;
+    --text: #e8f4ff;
+    --text2: #7aa5c8;
+    --text3: #3d6b8c;
+    --danger: #ff4560;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .logo span { color: var(--text2); font-weight: 400; font-size: 12px; margin-left: 8px; letter-spacing: 0; }
+  .layer-badges { display: flex; gap: 6px; }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+  .badge-l1 { color: var(--accent); border-color: var(--accent); background: rgba(0,198,255,0.06); }
+  .badge-l2 { color: var(--accent-green); border-color: var(--accent-green); background: rgba(0,229,160,0.06); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .system-status {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text2);
+  }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green);
+    animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,160,0.4)} 50%{opacity:.8;box-shadow:0 0 0 5px rgba(0,229,160,0)} }
+  .btn-export {
+    display: flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; color: #fff; padding: 6px 14px;
+    border-radius: 4px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .btn-export:hover { opacity: .85; }
+  .btn-save {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface3); border: 1px solid var(--border2);
+    color: var(--text); padding: 6px 14px;
+    border-radius: 4px; font-size: 12px; cursor: pointer; transition: border-color .2s;
+  }
+  .btn-save:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR CHAT */
+  .sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .sidebar-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-title {
+    font-size: 11px; font-weight: 600; color: var(--text2);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .sidebar-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* FILTER STRIP */
+  .filter-strip {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .filter-row { display: flex; gap: 6px; }
+  .filter-label { font-size: 10px; color: var(--text3); letter-spacing: .5px; margin-bottom: 3px; font-family: 'IBM Plex Mono', monospace; }
+  select, .filter-btn {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); padding: 5px 8px; border-radius: 3px;
+    font-size: 11px; font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer; transition: border-color .15s;
+  }
+  select:focus, .filter-btn:focus { outline: none; border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  .filter-btn-active {
+    background: rgba(0,198,255,0.1); border-color: var(--accent); color: var(--accent);
+  }
+  .time-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip {
+    font-size: 10px; padding: 3px 8px; border-radius: 2px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text3); cursor: pointer; transition: all .15s;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .chip:hover, .chip.active { background: rgba(0,198,255,0.1); border-color: var(--accent); color: var(--accent); }
+  .apply-filter {
+    width: 100%; padding: 7px; background: var(--surface3);
+    border: 1px solid var(--border2); color: var(--text); border-radius: 3px;
+    font-size: 11px; cursor: pointer; transition: all .15s;
+  }
+  .apply-filter:hover { background: rgba(0,198,255,0.08); border-color: var(--accent); color: var(--accent); }
+
+  /* SAVED VIEWS */
+  .saved-views {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .saved-view-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 8px; border-radius: 3px; cursor: pointer;
+    transition: background .15s; margin-bottom: 2px;
+  }
+  .saved-view-item:hover { background: var(--surface2); }
+  .saved-view-name { font-size: 11px; color: var(--text2); }
+  .saved-view-meta { font-size: 10px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+  .sv-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green); margin-right: 6px; flex-shrink: 0; }
+
+  /* CHAT AREA */
+  .chat-area {
+    flex: 1; overflow-y: auto; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .msg { max-width: 100%; }
+  .msg-user {
+    background: rgba(0,114,255,0.12); border: 1px solid rgba(0,114,255,0.25);
+    border-radius: 6px 6px 2px 6px; padding: 8px 10px;
+    margin-left: 20px;
+  }
+  .msg-ai {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 2px 6px 6px 6px; padding: 8px 10px;
+  }
+  .msg-text { font-size: 12px; line-height: 1.55; color: var(--text2); }
+  .msg-text strong { color: var(--text); font-weight: 500; }
+  .msg-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .quick-prompts { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .qp {
+    font-size: 11px; padding: 5px 8px; border-radius: 3px;
+    background: var(--surface3); border: 1px solid var(--border);
+    color: var(--text2); cursor: pointer; transition: all .15s; text-align: left;
+  }
+  .qp:hover { border-color: var(--accent); color: var(--accent); }
+  .thinking { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+  .thinking span {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+    animation: blink 1.4s infinite;
+  }
+  .thinking span:nth-child(2) { animation-delay: .2s; }
+  .thinking span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+  /* CHAT INPUT */
+  .chat-input-wrap {
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .chat-input-box {
+    display: flex; gap: 6px; align-items: flex-end;
+  }
+  .chat-input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 10px; border-radius: 4px;
+    font-size: 12px; font-family: 'IBM Plex Sans', sans-serif;
+    resize: none; min-height: 38px; max-height: 90px; line-height: 1.4;
+    transition: border-color .15s;
+  }
+  .chat-input:focus { outline: none; border-color: var(--accent); }
+  .chat-input::placeholder { color: var(--text3); }
+  .send-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; color: #fff; width: 36px; height: 36px;
+    border-radius: 4px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 14px; transition: opacity .2s;
+  }
+  .send-btn:hover { opacity: .85; }
+
+  /* DASHBOARD AREA */
+  .dashboard {
+    flex: 1; overflow-y: auto; padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .dashboard::-webkit-scrollbar { width: 4px; }
+  .dashboard::-webkit-scrollbar-track { background: transparent; }
+  .dashboard::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* KPI ROW */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px; position: relative; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .kpi-card:hover { border-color: var(--border2); }
+  .kpi-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .kpi-l1::before { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .kpi-l2::before { background: linear-gradient(90deg, var(--accent-green), #00b8d4); }
+  .kpi-uid::before { background: linear-gradient(90deg, var(--accent-purple), #ec4899); }
+  .kpi-tx::before { background: linear-gradient(90deg, var(--accent-orange), #f59e0b); }
+  .kpi-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .kpi-value span { font-size: 13px; color: var(--text2); font-weight: 400; margin-left: 2px; }
+  .kpi-delta { font-size: 11px; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+  .delta-up { color: var(--accent-green); }
+  .delta-down { color: var(--danger); }
+  .kpi-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+  /* CHART GRID */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; position: relative;
+  }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .chart-sub { font-size: 10px; color: var(--text3); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+  .chart-actions { display: flex; gap: 6px; }
+  .chart-act-btn {
+    font-size: 10px; padding: 3px 7px; border-radius: 2px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text3); cursor: pointer; transition: all .15s;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .chart-act-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .chart-act-btn.active { background: rgba(0,198,255,0.08); border-color: var(--accent); color: var(--accent); }
+  canvas { display: block; }
+  .layer-toggle {
+    display: flex; gap: 0; border: 1px solid var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .lt-btn {
+    font-size: 10px; padding: 3px 8px; background: var(--surface2);
+    border: none; color: var(--text3); cursor: pointer; transition: all .15s;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .lt-btn.active { background: var(--accent2); color: #fff; }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .data-table th { text-align: left; padding: 6px 10px; color: var(--text3); font-weight: 500; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .5px; }
+  .data-table td { padding: 7px 10px; color: var(--text2); border-bottom: 1px solid rgba(26,58,92,0.4); }
+  .data-table tr:hover td { background: var(--surface2); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .status-on { background: var(--accent-green); }
+  .status-off { background: var(--text3); }
+  .bar-inline { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--accent2), var(--accent)); display: inline-block; margin-left: 6px; vertical-align: middle; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+  }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--surface3); border: 1px solid var(--accent);
+    color: var(--accent); padding: 10px 16px; border-radius: 4px;
+    font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+    transform: translateY(60px); opacity: 0; transition: all .3s;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* EXPORT MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(4,13,26,0.85); align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 24px; width: 340px; position: relative;
+  }
+  .modal-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .modal-sub { font-size: 11px; color: var(--text3); margin-bottom: 16px; }
+  .export-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .export-opt {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 4px; cursor: pointer; transition: all .15s;
+  }
+  .export-opt:hover { border-color: var(--accent); }
+  .export-opt-icon { font-size: 20px; }
+  .export-opt-name { font-size: 12px; font-weight: 500; }
+  .export-opt-desc { font-size: 10px; color: var(--text3); }
+  .modal-close { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; }
+  .modal-close:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">PILA <span>Reporting System</span></div>
+    <div class="layer-badges">
+      <span class="badge badge-l1">L1 · BLOCKCHAIN</span>
+      <span class="badge badge-l2">L2 · DID</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="system-status"><div class="dot-live"></div> LIVE · 04/03/2026 · 09:14</div>
+    <button class="btn-save" onclick="saveView()">⊕ Lưu View</button>
+    <button class="btn-export" onclick="document.querySelector('.modal-overlay').classList.add('open')">↓ Xuất báo cáo</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">AI Report Assistant</div>
+      <div class="sidebar-sub">Trợ lý tạo báo cáo chuyên ngành</div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-strip">
+      <div>
+        <div class="filter-label">KHOẢNG THỜI GIAN</div>
+        <div class="time-chips">
+          <span class="chip" onclick="setChip(this,'time')">7N</span>
+          <span class="chip active" onclick="setChip(this,'time')">30N</span>
+          <span class="chip" onclick="setChip(this,'time')">Q1</span>
+          <span class="chip" onclick="setChip(this,'time')">6T</span>
+          <span class="chip" onclick="setChip(this,'time')">2025</span>
+          <span class="chip" onclick="setChip(this,'time')">Tùy chọn</span>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div style="flex:1">
+          <div class="filter-label">ĐỊA PHƯƠNG</div>
+          <select id="sel-province" onchange="applyFilters()">
+            <option>Toàn quốc</option>
+            <option>TP. Hồ Chí Minh</option>
+            <option>Hà Nội</option>
+            <option>Đà Nẵng</option>
+            <option>Cần Thơ</option>
+            <option>Bình Dương</option>
+            <option>Đồng Nai</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <div class="filter-label">NHÓM SẢN PHẨM</div>
+          <select id="sel-product" onchange="applyFilters()">
+            <option>Tất cả</option>
+            <option>Nông sản</option>
+            <option>Thực phẩm CB</option>
+            <option>Dược phẩm</option>
+            <option>Thủy sản</option>
+            <option>Hàng tiêu dùng</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="filter-label">BỘ BAN NGÀNH</div>
+        <select id="sel-ministry" onchange="applyFilters()">
+          <option>Tất cả đơn vị</option>
+          <option>Bộ Nông nghiệp & PTNT</option>
+          <option>Bộ Y tế</option>
+          <option>Bộ Công Thương</option>
+          <option>Bộ KH&CN</option>
+          <option>Cục ATVSTP</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SAVED VIEWS -->
+    <div class="saved-views">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.5px;font-family:'IBM Plex Mono',monospace;margin-bottom:6px;">VIEWS ĐÃ LƯU</div>
+      <div class="saved-view-item" onclick="loadView(this)">
+        <div style="display:flex;align-items:center"><div class="sv-dot"></div><span class="saved-view-name">Báo cáo Nông sản Q1</span></div>
+        <span class="saved-view-meta">03/03</span>
+      </div>
+      <div class="saved-view-item" onclick="loadView(this)">
+        <div style="display:flex;align-items:center"><div class="sv-dot" style="background:var(--accent)"></div><span class="saved-view-name">Tổng hợp TP.HCM tháng 2</span></div>
+        <span class="saved-view-meta">28/02</span>
+      </div>
+      <div class="saved-view-item" onclick="loadView(this)">
+        <div style="display:flex;align-items:center"><div class="sv-dot" style="background:var(--accent-purple)"></div><span class="saved-view-name">DID · Bộ Y tế</span></div>
+        <span class="saved-view-meta">25/02</span>
+      </div>
+      <div id="saved-views-dynamic"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-area" id="chat-area">
+      <div class="msg msg-ai">
+        <div class="msg-label">PILA AI</div>
+        <div class="msg-text">Xin chào, tôi có thể giúp bạn <strong>tạo báo cáo tùy biến</strong> theo bộ ban ngành, địa phương hoặc nhóm sản phẩm. Bắt đầu bằng cách nhập yêu cầu hoặc chọn gợi ý bên dưới.</div>
+        <div class="quick-prompts">
+          <button class="qp" onclick="sendQuick(this)">📊 Báo cáo tổng quan tháng 3</button>
+          <button class="qp" onclick="sendQuick(this)">🌾 Nông sản: truy xuất L1 theo tỉnh</button>
+          <button class="qp" onclick="sendQuick(this)">🆔 Thống kê UID đang hoạt động</button>
+          <button class="qp" onclick="sendQuick(this)">⚖️ So sánh L1 vs L2 tháng này</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT INPUT -->
+    <div class="chat-input-wrap">
+      <div class="chat-input-box">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Nhập yêu cầu báo cáo..." onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+
+    <!-- KPI -->
+    <div class="section-header">
+      <span class="section-title">Tổng quan hệ thống</span>
+      <div class="section-line"></div>
+      <span style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace">30 NGÀY QUA · TOÀN QUỐC</span>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-card kpi-l1">
+        <div class="kpi-label">L1 · Giao dịch Blockchain</div>
+        <div class="kpi-value">1,284,750 <span>tx</span></div>
+        <div class="kpi-delta delta-up">▲ 12.4% <span style="color:var(--text3)">so tháng trước</span></div>
+        <div class="kpi-sub">Node đang hoạt động: 48/48</div>
+      </div>
+      <div class="kpi-card kpi-l2">
+        <div class="kpi-label">L2 · Định danh (DID) hoạt động</div>
+        <div class="kpi-value">312,490 <span>UID</span></div>
+        <div class="kpi-delta delta-up">▲ 8.1% <span style="color:var(--text3)">so tháng trước</span></div>
+        <div class="kpi-sub">Tỷ lệ xác thực thành công: 98.7%</div>
+      </div>
+      <div class="kpi-card kpi-uid">
+        <div class="kpi-label">Sản phẩm đã truy xuất</div>
+        <div class="kpi-value">86,340 <span>SKU</span></div>
+        <div class="kpi-delta delta-up">▲ 21.6% <span style="color:var(--text3)">so tháng trước</span></div>
+        <div class="kpi-sub">6 nhóm ngành · 63 tỉnh thành</div>
+      </div>
+      <div class="kpi-card kpi-tx">
+        <div class="kpi-label">Doanh nghiệp tích hợp</div>
+        <div class="kpi-value">1,240 <span>DN</span></div>
+        <div class="kpi-delta delta-up">▲ 4.8% <span style="color:var(--text3)">so tháng trước</span></div>
+        <div class="kpi-sub">Mới trong tháng: +57 doanh nghiệp</div>
+      </div>
+    </div>
+
+    <!-- MAIN CHARTS ROW 1 -->
+    <div class="section-header">
+      <span class="section-title">Layer 1 · Blockchain Metrics</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Giao dịch blockchain theo thời gian (L1)</div>
+            <div class="chart-sub">TRANSACTION VOLUME · 30 NGÀY</div>
+          </div>
+          <div class="chart-actions">
+            <button class="chart-act-btn active" onclick="toggleChartType(this,'txChart','bar')">Bar</button>
+            <button class="chart-act-btn" onclick="toggleChartType(this,'txChart','line')">Line</button>
+          </div>
+        </div>
+        <canvas id="txChart" height="130"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Phân bố giao dịch theo nhóm sản phẩm</div>
+            <div class="chart-sub">L1 PRODUCT DISTRIBUTION</div>
+          </div>
+        </div>
+        <canvas id="productPieChart" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Top 8 địa phương · Giao dịch L1</div>
+            <div class="chart-sub">BY PROVINCE · RANKING</div>
+          </div>
+          <div class="chart-actions">
+            <button class="chart-act-btn active">Tháng 3</button>
+          </div>
+        </div>
+        <canvas id="provinceChart" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- MAIN CHARTS ROW 2 -->
+    <div class="section-header">
+      <span class="section-title">Layer 2 · DID & Định danh Số</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Tăng trưởng UID đăng ký mới</div>
+            <div class="chart-sub">DID REGISTRATION TREND</div>
+          </div>
+          <div class="chart-actions">
+            <button class="chart-act-btn active">Cá nhân</button>
+            <button class="chart-act-btn">Doanh nghiệp</button>
+          </div>
+        </div>
+        <canvas id="didGrowthChart" height="140"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Phân bố loại định danh (DID Type)</div>
+            <div class="chart-sub">L2 DID CATEGORY PIE</div>
+          </div>
+        </div>
+        <canvas id="didTypeChart" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="section-header">
+      <span class="section-title">Chi tiết theo địa phương & sản phẩm</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Bảng tổng hợp truy xuất nguồn gốc theo tỉnh thành</div>
+          <div class="chart-sub">PROVINCE TRACEABILITY SUMMARY · THÁNG 3/2026</div>
+        </div>
+        <div class="chart-actions">
+          <button class="chart-act-btn">↓ CSV</button>
+          <button class="chart-act-btn">↓ Excel</button>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tỉnh / Thành phố</th>
+            <th>Giao dịch L1</th>
+            <th>UID hoạt động</th>
+            <th>Sản phẩm truy xuất</th>
+            <th>Doanh nghiệp</th>
+            <th>Tỷ lệ thành công</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody id="province-table">
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.querySelector('.modal-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title">Xuất báo cáo</div>
+    <div class="modal-sub">Chọn định dạng xuất cho báo cáo hiện tại</div>
+    <div class="export-options">
+      <div class="export-opt" onclick="doExport('PDF')">
+        <span class="export-opt-icon">📄</span>
+        <div><div class="export-opt-name">PDF Report</div><div class="export-opt-desc">Báo cáo chính thức có logo, dấu đỏ</div></div>
+      </div>
+      <div class="export-opt" onclick="doExport('Excel')">
+        <span class="export-opt-icon">📊</span>
+        <div><div class="export-opt-name">Excel / CSV</div><div class="export-opt-desc">Dữ liệu thô, bảng tổng hợp, biểu đồ</div></div>
+      </div>
+      <div class="export-opt" onclick="doExport('PowerPoint')">
+        <span class="export-opt-icon">📋</span>
+        <div><div class="export-opt-name">PowerPoint</div><div class="export-opt-desc">Slide trình bày cho bộ ban ngành</div></div>
+      </div>
+      <div class="export-opt" onclick="doExport('JSON API')">
+        <span class="export-opt-icon">⚙️</span>
+        <div><div class="export-opt-name">JSON / API</div><div class="export-opt-desc">Tích hợp vào hệ thống của bộ ngành</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const txData = [38420,41200,39800,43500,47200,44100,52300,48900,55100,51800,58400,54200,60100,57800,63200,59400,66800,62100,71400,67200,74600,70100,78300,73800,82400,77600,85200,80400,89600,84200];
+const labels30 = Array.from({length:30},(_,i)=>`${i+1}/3`);
+
+const provinceData = [
+  ['TP. Hồ Chí Minh', 284620, 68420, 18340, 312, 99.2],
+  ['Hà Nội', 198440, 52180, 14210, 248, 98.8],
+  ['Đà Nẵng', 94200, 28640, 7820, 118, 98.5],
+  ['Bình Dương', 82140, 24100, 6480, 98, 97.9],
+  ['Đồng Nai', 74880, 21340, 5920, 87, 98.1],
+  ['Cần Thơ', 68200, 19600, 5140, 74, 97.6],
+  ['Hải Phòng', 58400, 16800, 4380, 62, 97.4],
+  ['Vĩnh Long', 44100, 12600, 3240, 48, 96.8],
+];
+
+// ===== CHARTS =====
+const chartDefaults = {
+  color: '#7aa5c8',
+  borderColor: '#1a3a5c',
+};
+Chart.defaults.color = chartDefaults.color;
+Chart.defaults.borderColor = chartDefaults.borderColor;
+Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+
+let txChartObj;
+function initTxChart() {
+  const ctx = document.getElementById('txChart').getContext('2d');
+  const gradient = ctx.createLinearGradient(0,0,0,130);
+  gradient.addColorStop(0,'rgba(0,114,255,0.35)');
+  gradient.addColorStop(1,'rgba(0,114,255,0)');
+  txChartObj = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels30,
+      datasets: [{
+        label: 'Giao dịch L1',
+        data: txData,
+        backgroundColor: gradient,
+        borderColor: '#0072ff',
+        borderWidth: 1.5,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1d35', borderColor: '#1a3a5c', borderWidth: 1 }},
+      scales: {
+        x: { grid: { color: 'rgba(26,58,92,0.4)' }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }},
+        y: { grid: { color: 'rgba(26,58,92,0.4)' }, ticks: { font: { size: 9 } }}
+      }
+    }
+  });
+}
+
+function toggleChartType(btn, chartId, type) {
+  document.querySelectorAll('.chart-act-btn').forEach(b => { if(b.parentNode === btn.parentNode) b.classList.remove('active'); });
+  btn.classList.add('active');
+  if(chartId === 'txChart') {
+    txChartObj.config.type = type;
+    txChartObj.data.datasets[0].backgroundColor = type === 'line' ? 'rgba(0,114,255,0.15)' : txChartObj.data.datasets[0].backgroundColor;
+    txChartObj.data.datasets[0].fill = type === 'line';
+    txChartObj.data.datasets[0].tension = 0.4;
+    txChartObj.update();
+  }
+}
+
+function initProductPie() {
+  const ctx = document.getElementById('productPieChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Nông sản', 'Thực phẩm CB', 'Thủy sản', 'Dược phẩm', 'Hàng tiêu dùng', 'Khác'],
+      datasets: [{ data: [34, 22, 18, 12, 9, 5], backgroundColor: ['#0072ff','#00c6ff','#00e5a0','#a855f7','#ff8c42','#3d6b8c'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true, cutout: '62%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, padding: 8, boxWidth: 10 }}, tooltip: { backgroundColor: '#0c1d35', borderColor: '#1a3a5c', borderWidth: 1 }}
+    }
+  });
+}
+
+function initProvinceChart() {
+  const ctx = document.getElementById('provinceChart').getContext('2d');
+  const provinces = provinceData.map(p => p[0].replace('TP. ',''));
+  const values = provinceData.map(p => p[1]);
+  const colors = ['#0072ff','#00a8e8','#00c6ff','#00d4b1','#00e5a0','#4ade80','#86efac','#bbf7d0'];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: provinces,
+      datasets: [{ label: 'Giao dịch', data: values, backgroundColor: colors, borderRadius: 3, borderWidth: 0 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1d35', borderColor: '#1a3a5c', borderWidth: 1 }},
+      scales: {
+        x: { grid: { color: 'rgba(26,58,92,0.4)' }, ticks: { font: { size: 9 } }},
+        y: { grid: { display: false }, ticks: { font: { size: 9 } }}
+      }
+    }
+  });
+}
+
+function initDidGrowth() {
+  const ctx = document.getElementById('didGrowthChart').getContext('2d');
+  const months = ['T8/25','T9','T10','T11','T12','T1/26','T2','T3'];
+  const indiv = [18200,22400,27800,31200,38600,42100,48900,54200];
+  const biz   = [2100,2800,3400,4100,5200,6400,7800,9200];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Cá nhân', data: indiv, backgroundColor: 'rgba(0,114,255,0.7)', borderRadius: 3, borderWidth: 0 },
+        { label: 'Doanh nghiệp', data: biz, backgroundColor: 'rgba(0,229,160,0.7)', borderRadius: 3, borderWidth: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { labels: { font: { size: 10 }, padding: 10, boxWidth: 10 }}, tooltip: { backgroundColor: '#0c1d35', borderColor: '#1a3a5c', borderWidth: 1 }},
+      scales: {
+        x: { stacked: true, grid: { color: 'rgba(26,58,92,0.4)' }, ticks: { font: { size: 9 }}},
+        y: { stacked: true, grid: { color: 'rgba(26,58,92,0.4)' }, ticks: { font: { size: 9 }}}
+      }
+    }
+  });
+}
+
+function initDidType() {
+  const ctx = document.getElementById('didTypeChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['UID Sản phẩm', 'UID Doanh nghiệp', 'UID Cá nhân', 'UID Cơ quan NN', 'UID Thiết bị IoT'],
+      datasets: [{ data: [42, 28, 16, 9, 5], backgroundColor: ['#0072ff','#a855f7','#00e5a0','#ff8c42','#00c6ff'], borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, padding: 8, boxWidth: 10 }}, tooltip: { backgroundColor: '#0c1d35', borderColor: '#1a3a5c', borderWidth: 1 }}
+    }
+  });
+}
+
+function renderTable() {
+  const tb = document.getElementById('province-table');
+  tb.innerHTML = '';
+  provinceData.forEach((row, i) => {
+    const pct = row[5];
+    const barW = Math.round((row[1]/284620)*80);
+    tb.innerHTML += `<tr>
+      <td style="color:var(--text3);font-family:'IBM Plex Mono',monospace">${String(i+1).padStart(2,'0')}</td>
+      <td style="font-weight:500;color:var(--text)">${row[0]}</td>
+      <td>${row[1].toLocaleString('vi-VN')}<span class="bar-inline" style="width:${barW}px"></span></td>
+      <td>${row[2].toLocaleString('vi-VN')}</td>
+      <td>${row[3].toLocaleString('vi-VN')}</td>
+      <td>${row[4]}</td>
+      <td><span style="color:${pct>=98?'var(--accent-green)':'var(--accent-orange)'}">${pct}%</span></td>
+      <td><span class="status-dot status-on"></span>Đang hoạt động</td>
+    </tr>`;
+  });
+}
+
+// ===== FILTER =====
+function setChip(el, group) {
+  el.closest('.time-chips').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const prov = document.getElementById('sel-province').value;
+  const prod = document.getElementById('sel-product').value;
+  showToast(`Đã áp dụng: ${prov} · ${prod}`);
+}
+
+// ===== CHAT =====
+const aiResponses = {
+  'tháng 3': 'Đã tạo <strong>Báo cáo Tổng quan Tháng 3/2026</strong>. Giao dịch L1 tăng 12.4%, UID DID tăng 8.1% so với tháng 2. Đang hiển thị toàn bộ 63 tỉnh thành.',
+  'nông sản': 'Đã filter nhóm <strong>Nông sản</strong>. Top tỉnh: TP.HCM (284K tx), Hà Nội (198K tx), Đồng Tháp (61K tx). Tỷ lệ truy xuất thành công đạt 98.9%.',
+  'uid': 'Hiện có <strong>312,490 UID</strong> đang hoạt động. Trong đó: UID Sản phẩm 42%, UID Doanh nghiệp 28%, UID Cá nhân 16%. Tăng trưởng 8.1% tháng qua.',
+  'so sánh': 'So sánh L1 vs L2: Giao dịch L1 tăng mạnh hơn (+12.4%) nhờ nhóm Nông sản và Thực phẩm CB. L2 DID tăng ổn định +8.1%, tập trung ở TP.HCM và Hà Nội.',
+};
+
+function sendQuick(btn) {
+  const text = btn.textContent.replace(/^[^\s]+\s/,'');
+  addUserMsg(text);
+  btn.closest('.quick-prompts').remove();
+  setTimeout(() => addAiMsg(getAiResponse(text)), 700);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addUserMsg(text);
+  input.value = '';
+  input.style.height = 'auto';
+  const thinkEl = addThinking();
+  setTimeout(() => { thinkEl.remove(); addAiMsg(getAiResponse(text)); }, 900);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function getAiResponse(text) {
+  const t = text.toLowerCase();
+  for (const [key, val] of Object.entries(aiResponses)) {
+    if (t.includes(key)) return val;
+  }
+  return `Đã nhận yêu cầu: "<strong>${text}</strong>". Đang tổng hợp dữ liệu từ L1 blockchain và L2 DID theo bộ lọc hiện tại. Dashboard đã được cập nhật.`;
+}
+
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  div.innerHTML = `<div class="msg-label">BẠN</div><div class="msg-text">${text}</div>`;
+  document.getElementById('chat-area').appendChild(div);
+  scrollChat();
+}
+
+function addAiMsg(html) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-label">PILA AI</div><div class="msg-text">${html}</div>`;
+  document.getElementById('chat-area').appendChild(div);
+  scrollChat();
+}
+
+function addThinking() {
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="thinking"><span></span><span></span><span></span></div>`;
+  document.getElementById('chat-area').appendChild(div);
+  scrollChat();
+  return div;
+}
+
+function scrollChat() {
+  const ca = document.getElementById('chat-area');
+  ca.scrollTop = ca.scrollHeight;
+}
+
+// ===== SAVE VIEW =====
+let savedCount = 0;
+function saveView() {
+  savedCount++;
+  const prov = document.getElementById('sel-province').value;
+  const prod = document.getElementById('sel-product').value;
+  const name = `${prod !== 'Tất cả' ? prod+' · ' : ''}${prov}`;
+  const cont = document.getElementById('saved-views-dynamic');
+  const colors = ['var(--accent-orange)','var(--accent-purple)','var(--danger)'];
+  const c = colors[savedCount % colors.length];
+  const item = document.createElement('div');
+  item.className = 'saved-view-item';
+  item.innerHTML = `<div style="display:flex;align-items:center"><div class="sv-dot" style="background:${c}"></div><span class="saved-view-name">${name}</span></div><span class="saved-view-meta">Now</span>`;
+  item.onclick = function(){ loadView(this); };
+  cont.appendChild(item);
+  showToast(`✓ Đã lưu view: ${name}`);
+}
+
+function loadView(el) {
+  document.querySelectorAll('.saved-view-item').forEach(i => i.style.background = '');
+  el.style.background = 'var(--surface2)';
+  showToast(`Đã tải: ${el.querySelector('.saved-view-name').textContent}`);
+}
+
+// ===== EXPORT =====
+function doExport(type) {
+  document.querySelector('.modal-overlay').classList.remove('open');
+  showToast(`↓ Đang xuất ${type}... Xong!`);
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => {
+  initTxChart();
+  initProductPie();
+  initProvinceChart();
+  initDidGrowth();
+  initDidType();
+  renderTable();
+});
+</script>
+</body>
+</html>
