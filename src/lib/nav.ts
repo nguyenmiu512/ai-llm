@@ -23,6 +23,7 @@ export const navigation: NavItem[] = [
       { label: "Danh sách sự kiện", href: "/truy-xuat/su-kien" },
       { label: "Quản lý lô khai báo", href: "/truy-xuat/lo-khai-bao" },
       { label: "Mẫu sự kiện trọng yếu", href: "/truy-xuat/mau-trong-yeu" },
+      { label: "Chứng chỉ được cấp", href: "/truy-xuat/chung-chi-duoc-cap" },
     ],
   },
   {
@@ -51,7 +52,7 @@ export const navigation: NavItem[] = [
     children: [
       { label: "Đơn vị hành chính", href: "/danh-muc/don-vi-hanh-chinh" },
       { label: "Nhóm ngành hàng", href: "/danh-muc/nhom-nganh-hang" },
-      { label: "Loại chứng chỉ", href: "/danh-muc/loai-chung-chi" },
+      { label: "Danh sách chứng chỉ", href: "/danh-muc/loai-chung-chi" },
       { label: "Mức độ rủi ro", href: "/danh-muc/muc-do-rui-ro" },
       { label: "Thư viện mẫu sự kiện", href: "/danh-muc/thu-vien-mau-su-kien" },
     ],
@@ -61,7 +62,7 @@ export const navigation: NavItem[] = [
     href: "/tich-hop",
     children: [
       { label: "Sự kiện tích hợp", href: "/tich-hop/webhook" },
-      { label: "Nhật ký giao dịch", href: "/tich-hop/transaction" },
+      { label: "Nhật kí giao dịch", href: "/tich-hop/transaction" },
     ],
   },
 ];
