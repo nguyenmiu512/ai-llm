@@ -47,7 +47,7 @@ export default function WardDistributionChart() {
           <Tooltip
             contentStyle={{ borderRadius: "12px", border: "1px solid #e5e7eb", fontSize: 12 }}
             cursor={{ fill: "#f3f4f6" }}
-            formatter={(value: number) => [`${value} cơ sở`, "Số cơ sở"]}
+            formatter={(value: any) => [`${value} cơ sở`, "Số cơ sở"]}
           />
           <Bar dataKey="coSo" name="Cơ sở" fill="#1570ef" radius={[6, 6, 0, 0]} />
         </BarChart>
