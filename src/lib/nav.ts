@@ -31,9 +31,11 @@ export const navigation: NavItem[] = [
     href: "/quan-tri",
     children: [
       { label: "Bộ ban ngành", href: "/quan-tri/bo-ban-nganh" },
+      { label: "Tổ chức", href: "/quan-tri/to-chuc" },
       { label: "Đối tác", href: "/quan-tri/doi-tac" },
       { label: "Doanh nghiệp", href: "/quan-tri/doanh-nghiep" },
       { label: "Người dùng", href: "/quan-tri/nguoi-dung" },
+      { label: "Vai trò", href: "/quan-tri/vai-tro" },
       { label: "Phân quyền", href: "/quan-tri/phan-quyen" },
     ],
   },
@@ -42,6 +44,7 @@ export const navigation: NavItem[] = [
     href: "/danh-muc",
     children: [
       { label: "Đơn vị hành chính", href: "/danh-muc/don-vi-hanh-chinh" },
+      { label: "Đơn vị tính", href: "/danh-muc/don-vi-tinh" },
       { label: "Nhóm ngành hàng", href: "/danh-muc/nhom-nganh-hang" },
       { label: "Danh sách chứng chỉ", href: "/danh-muc/loai-chung-chi" },
       { label: "Mức độ rủi ro", href: "/danh-muc/muc-do-rui-ro" },
@@ -49,11 +52,15 @@ export const navigation: NavItem[] = [
     ],
   },
   {
+    label: "Báo cáo AI",
+    href: "/bao-cao-ai",
+  },
+  {
     label: "Tích hợp hệ thống",
     href: "/tich-hop",
     children: [
       { label: "Sự kiện tích hợp", href: "/tich-hop/webhook" },
-      { label: "Nhật kí giao dịch", href: "/tich-hop/transaction" },
+      { label: "Nhật ký giao dịch", href: "/tich-hop/transaction" },
     ],
   },
 ];

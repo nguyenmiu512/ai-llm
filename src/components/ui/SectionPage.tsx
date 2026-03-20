@@ -7,8 +7,9 @@ import { ReactNode } from "react";
 import { Plus, Download } from "lucide-react";
 
 interface SectionPageProps {
-  title: string;
+  title?: string;
   subtitle?: string;
+  showHeader?: boolean;
   stats?: { label: string; value: string | number; variant?: "success" | "warning" | "danger" | "info" | "neutral" }[];
   tableColumns: { key: string; label: string; render?: (row: Record<string, unknown>) => ReactNode; width?: string }[];
   tableData: Record<string, unknown>[];
@@ -16,11 +17,13 @@ interface SectionPageProps {
   actionButton?: ReactNode;
   searchable?: boolean;
   searchKeys?: string[];
+  onRowClick?: (row: Record<string, unknown>) => void;
 }
 
 export default function SectionPage({
   title,
   subtitle,
+  showHeader = true,
   stats,
   tableColumns,
   tableData,
@@ -28,25 +31,28 @@ export default function SectionPage({
   actionButton,
   searchable,
   searchKeys,
+  onRowClick,
 }: SectionPageProps) {
   return (
-    <DashboardLayout>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h1>
-          {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <Download size={14} /> Xuất
-          </button>
-          {actionButton || (
-            <button className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-4 py-2 transition-colors">
-              <Plus size={14} /> {addLabel}
+    <>
+      {showHeader && (
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h1>
+            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <Download size={14} /> Xuất
             </button>
-          )}
+            {actionButton || (
+              <button className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-4 py-2 transition-colors">
+                <Plus size={14} /> {addLabel}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {stats && (
         <div className="flex items-center gap-3 mb-5">
@@ -64,7 +70,8 @@ export default function SectionPage({
         data={tableData}
         searchable={searchable}
         searchKeys={searchKeys}
+        onRowClick={onRowClick}
       />
-    </DashboardLayout>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navigation, NavItem } from "@/lib/nav";
+import { useSidebar } from "@/contexts/SidebarContext";
 import {
   LayoutDashboard,
   ScanSearch,
@@ -12,6 +13,7 @@ import {
   BookOpen,
   Plug,
   ShieldCheck,
+  BrainCircuit,
   ChevronDown,
   ChevronRight,
   Search,
@@ -24,6 +26,7 @@ const sectionIcons: Record<string, React.ComponentType<{ size?: number; classNam
   Dashboard: LayoutDashboard,
   "Truy xuất nguồn gốc": ScanSearch,
   
+  "Báo cáo AI": BrainCircuit,
   "Quản trị hệ thống": ShieldCheck,
   "Danh mục hệ thống": BookOpen,
   "Tích hợp hệ thống": Plug,
@@ -230,6 +233,7 @@ function NavChild({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
   const [open, setOpen] = useState(isActive);
+  useEffect(() => { if (isActive) setOpen(true); }, [isActive]);
 
   if (!item.children?.length) {
     return (
@@ -288,33 +292,41 @@ function NavSection({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
   const [open, setOpen] = useState(isActive);
+  useEffect(() => { if (isActive) setOpen(true); }, [isActive]);
   const Icon = sectionIcons[item.label] ?? LayoutDashboard;
+
+  const itemClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+    isActive
+      ? "bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300"
+      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+  }`;
+  const iconClass = isActive
+    ? "text-brand-600 dark:text-brand-400"
+    : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300";
+
+  if (!item.children?.length) {
+    return (
+      <Link href={item.href} className={itemClass}>
+        <Icon size={17} className={iconClass} />
+        <span className="flex-1 text-left leading-tight">{item.label}</span>
+      </Link>
+    );
+  }
 
   return (
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-          isActive
-            ? "bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
-        }`}
+        className={itemClass}
       >
-        <Icon
-          size={17}
-          className={
-            isActive
-              ? "text-brand-600 dark:text-brand-400"
-              : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"
-          }
-        />
+        <Icon size={17} className={iconClass} />
         <span className="flex-1 text-left leading-tight">{item.label}</span>
         {open
           ? <ChevronDown size={13} className="text-gray-400 shrink-0" />
           : <ChevronRight size={13} className="text-gray-400 shrink-0" />
         }
       </button>
-      {open && item.children && (
+      {open && (
         <div className="mt-1 ml-8 space-y-0.5 border-l border-gray-100 dark:border-gray-800 pl-3 pb-1">
           {item.children.map((child) => (
             <NavChild key={child.href} item={child} />
@@ -327,8 +339,16 @@ function NavSection({ item }: { item: NavItem }) {
 
 // ── Sidebar shell ─────────────────────────────────────────────────────────────
 export default function Sidebar() {
+  const { isCollapsed } = useSidebar();
+
+  if (isCollapsed) {
+    return null;
+  }
+
   return (
-    <aside className="fixed top-0 left-0 h-screen w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col z-30 transition-colors">
+    <aside className={`fixed top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col z-30 transition-all duration-300 ${
+      isCollapsed ? "-translate-x-full opacity-0" : "w-60"
+    }`}>
       {/* Logo */}
       <div className="flex items-center px-5 py-4 border-b border-gray-100 dark:border-gray-800">
         <Link href="/dashboard">

@@ -18,6 +18,7 @@ interface DataTableProps<T> {
   data: T[];
   searchable?: boolean;
   searchKeys?: (keyof T | string)[];
+  onRowClick?: (row: T) => void;
 }
 
 function smartCompare(a: unknown, b: unknown): number {
@@ -33,6 +34,7 @@ export default function DataTable<T extends Record<string, unknown>>({
   data,
   searchable = false,
   searchKeys = [],
+  onRowClick,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -197,7 +199,10 @@ export default function DataTable<T extends Record<string, unknown>>({
             {slice.map((row, i) => (
               <tr
                 key={i}
-                className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors"
+                onClick={() => onRowClick?.(row)}
+                className={`border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors ${
+                  onRowClick ? "cursor-pointer" : ""
+                }`}
               >
                 {columns.map((col) => (
                   <td key={String(col.key)} className="px-5 py-3.5 text-gray-700 dark:text-gray-300">

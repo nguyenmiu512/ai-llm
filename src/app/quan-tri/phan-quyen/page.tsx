@@ -1,135 +1,173 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import SectionPage from "@/components/ui/SectionPage";
 import Badge from "@/components/ui/Badge";
+import Breadcrumb, { PermissionBreadcrumbs } from "@/components/ui/Breadcrumb";
 
-const roles = [
-  {
-    role: "Quản trị viên",
-    desc: "Toàn quyền hệ thống",
-    permissions: { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true },
-  },
-  {
-    role: "Quản lý",
-    desc: "Quản lý đơn vị trực thuộc",
-    permissions: { xem: true, tao: true, sua: true, xoa: false, phe_duyet: true },
-  },
-  {
-    role: "Kiểm định viên",
-    desc: "Xem xét và phê duyệt sự kiện",
-    permissions: { xem: true, tao: false, sua: false, xoa: false, phe_duyet: true },
-  },
-  {
-    role: "Nhân viên nhập liệu",
-    desc: "Tạo và cập nhật dữ liệu",
-    permissions: { xem: true, tao: true, sua: true, xoa: false, phe_duyet: false },
-  },
-  {
-    role: "Đối tác",
-    desc: "Xem dữ liệu liên quan",
-    permissions: { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false },
-  },
-  {
-    role: "Người xem",
-    desc: "Chỉ xem, không thay đổi",
-    permissions: { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false },
-  },
+const data = [
+  { id: "PQ001", vai_tro: "Quản trị viên", module: "Sản phẩm", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ002", vai_tro: "Quản trị viên", module: "Sự kiện truy xuất", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ003", vai_tro: "Quản trị viên", module: "Tem nhãn (UID/QR)", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ004", vai_tro: "Quản trị viên", module: "Chứng chỉ", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ005", vai_tro: "Quản trị viên", module: "Báo cáo", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ006", vai_tro: "Quản trị viên", module: "Quản trị người dùng", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ007", vai_tro: "Quản trị viên", module: "Tích hợp API", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/01/2024", trang_thai: "active" },
+  { id: "PQ008", vai_tro: "Quản lý", module: "Sản phẩm", xem: true, tao: true, sua: true, xoa: false, phe_duyet: true, ngay_cap_nhat: "15/01/2024", trang_thai: "active" },
+  { id: "PQ009", vai_tro: "Quản lý", module: "Sự kiện truy xuất", xem: true, tao: true, sua: true, xoa: false, phe_duyet: true, ngay_cap_nhat: "15/01/2024", trang_thai: "active" },
+  { id: "PQ010", vai_tro: "Quản lý", module: "Tem nhãn (UID/QR)", xem: true, tao: true, sua: true, xoa: false, phe_duyet: false, ngay_cap_nhat: "15/01/2024", trang_thai: "active" },
+  { id: "PQ011", vai_tro: "Quản lý", module: "Chứng chỉ", xem: true, tao: true, sua: true, xoa: false, phe_duyet: true, ngay_cap_nhat: "15/01/2024", trang_thai: "active" },
+  { id: "PQ012", vai_tro: "Quản lý", module: "Báo cáo", xem: true, tao: true, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "15/01/2024", trang_thai: "active" },
+  { id: "PQ013", vai_tro: "Kiểm định viên", module: "Sản phẩm", xem: true, tao: false, sua: false, xoa: false, phe_duyet: true, ngay_cap_nhat: "20/01/2024", trang_thai: "active" },
+  { id: "PQ014", vai_tro: "Kiểm định viên", module: "Sự kiện truy xuất", xem: true, tao: false, sua: false, xoa: false, phe_duyet: true, ngay_cap_nhat: "20/01/2024", trang_thai: "active" },
+  { id: "PQ015", vai_tro: "Kiểm định viên", module: "Tem nhãn (UID/QR)", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "20/01/2024", trang_thai: "active" },
+  { id: "PQ016", vai_tro: "Kiểm định viên", module: "Chứng chỉ", xem: true, tao: false, sua: false, xoa: false, phe_duyet: true, ngay_cap_nhat: "20/01/2024", trang_thai: "active" },
+  { id: "PQ017", vai_tro: "Nhân viên nhập liệu", module: "Sản phẩm", xem: true, tao: true, sua: true, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/02/2024", trang_thai: "active" },
+  { id: "PQ018", vai_tro: "Nhân viên nhập liệu", module: "Sự kiện truy xuất", xem: true, tao: true, sua: true, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/02/2024", trang_thai: "active" },
+  { id: "PQ019", vai_tro: "Nhân viên nhập liệu", module: "Tem nhãn (UID/QR)", xem: true, tao: true, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/02/2024", trang_thai: "active" },
+  { id: "PQ020", vai_tro: "Nhân viên nhập liệu", module: "Chứng chỉ", xem: true, tao: true, sua: true, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/02/2024", trang_thai: "active" },
+  { id: "PQ021", vai_tro: "Đối tác", module: "Sản phẩm", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "15/02/2024", trang_thai: "active" },
+  { id: "PQ022", vai_tro: "Đối tác", module: "Sự kiện truy xuất", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "15/02/2024", trang_thai: "active" },
+  { id: "PQ023", vai_tro: "Đối tác", module: "Tích hợp API", xem: true, tao: true, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "15/02/2024", trang_thai: "active" },
+  { id: "PQ024", vai_tro: "Người xem", module: "Sản phẩm", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/03/2024", trang_thai: "active" },
+  { id: "PQ025", vai_tro: "Người xem", module: "Sự kiện truy xuất", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/03/2024", trang_thai: "active" },
+  { id: "PQ026", vai_tro: "Người xem", module: "Chứng chỉ", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "01/03/2024", trang_thai: "active" },
+  { id: "PQ027", vai_tro: "Quản trị viên", module: "Dashboard", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "10/03/2024", trang_thai: "active" },
+  { id: "PQ028", vai_tro: "Quản lý", module: "Dashboard", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "10/03/2024", trang_thai: "active" },
+  { id: "PQ029", vai_tro: "Cán bộ quản lý", module: "Báo cáo & phân tích", xem: true, tao: true, sua: true, xoa: false, phe_duyet: true, ngay_cap_nhat: "20/03/2024", trang_thai: "active" },
+  { id: "PQ030", vai_tro: "Cán bộ quản lý", module: "Cảnh báo rủi ro", xem: true, tao: true, sua: true, xoa: false, phe_duyet: true, ngay_cap_nhat: "10/04/2024", trang_thai: "active" },
+  { id: "PQ031", vai_tro: "Chuyên gia kỹ thuật", module: "Tích hợp API", xem: true, tao: true, sua: true, xoa: true, phe_duyet: false, ngay_cap_nhat: "01/04/2024", trang_thai: "active" },
+  { id: "PQ032", vai_tro: "Chuyên gia kỹ thuật", module: "Webhook", xem: true, tao: true, sua: true, xoa: true, phe_duyet: false, ngay_cap_nhat: "10/04/2024", trang_thai: "active" },
+  { id: "PQ033", vai_tro: "Chuyên gia kỹ thuật", module: "Transaction API", xem: true, tao: true, sua: true, xoa: true, phe_duyet: false, ngay_cap_nhat: "01/04/2024", trang_thai: "active" },
+  { id: "PQ034", vai_tro: "Quản trị viên", module: "Cài đặt hệ thống", xem: true, tao: true, sua: true, xoa: true, phe_duyet: true, ngay_cap_nhat: "01/04/2024", trang_thai: "active" },
+  { id: "PQ035", vai_tro: "Quản trị viên", module: "Nhật ký hoạt động", xem: true, tao: false, sua: false, xoa: false, phe_duyet: false, ngay_cap_nhat: "10/04/2024", trang_thai: "active" },
 ];
 
-const modules = [
-  { name: "Sản phẩm", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: true }, "Kiểm định viên": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: true }, "Nhân viên nhập liệu": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: false }, "Đối tác": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Sự kiện truy xuất", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: true }, "Kiểm định viên": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: true }, "Nhân viên nhập liệu": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: false }, "Đối tác": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Tem nhãn (UID/QR)", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: false }, "Kiểm định viên": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Nhân viên nhập liệu": { xem: true, tao: true, sua: false, xoa: false, phe_duyet: false }, "Đối tác": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Chứng chỉ", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: true }, "Kiểm định viên": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: true }, "Nhân viên nhập liệu": { xem: true, tao: true, sua: true, xoa: false, phe_duyet: false }, "Đối tác": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Báo cáo", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: true, sua: false, xoa: false, phe_duyet: false }, "Kiểm định viên": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Nhân viên nhập liệu": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Đối tác": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Quản trị người dùng", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Kiểm định viên": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Nhân viên nhập liệu": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Đối tác": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-  { name: "Tích hợp API", roles: { "Quản trị viên": { xem: true, tao: true, sua: true, xoa: true, phe_duyet: true }, "Quản lý": { xem: true, tao: false, sua: false, xoa: false, phe_duyet: false }, "Kiểm định viên": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Nhân viên nhập liệu": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false }, "Đối tác": { xem: true, tao: true, sua: false, xoa: false, phe_duyet: false }, "Người xem": { xem: false, tao: false, sua: false, xoa: false, phe_duyet: false } } },
-];
+const roleColors: Record<string, "success" | "info" | "warning" | "neutral" | "danger"> = {
+  "Quản trị viên": "danger",
+  "Quản lý": "warning",
+  "Kiểm định viên": "info",
+  "Nhân viên nhập liệu": "success",
+  "Đối tác": "neutral",
+  "Người xem": "neutral",
+  "Cán bộ quản lý": "info",
+  "Chuyên gia kỹ thuật": "warning",
+};
 
-const PermCell = ({ allowed }: { allowed: boolean }) => (
-  <div className="flex justify-center">
-    {allowed
-      ? <span className="text-green-600 font-bold text-base">✓</span>
-      : <span className="text-gray-300 text-base">—</span>}
-  </div>
+const PermissionBadge = ({ allowed, label }: { allowed: boolean; label: string }) => (
+  <Badge variant={allowed ? "success" : "neutral"}>
+    {allowed ? label : "—"}
+  </Badge>
 );
 
-const roleOrder = ["Quản trị viên", "Quản lý", "Kiểm định viên", "Nhân viên nhập liệu", "Đối tác", "Người xem"];
+const columns = [
+  { key: "id", label: "Mã", width: "80px" },
+  {
+    key: "vai_tro",
+    label: "Vai trò",
+    render: (row: Record<string, unknown>) => (
+      <Badge variant={roleColors[row.vai_tro as string] ?? "neutral"}>{row.vai_tro as string}</Badge>
+    ),
+    width: "150px",
+  },
+  { key: "module", label: "Module", width: "180px" },
+  {
+    key: "xem",
+    label: "Xem",
+    render: (row: Record<string, unknown>) => (
+      <span className="text-green-600 font-semibold text-center block">{(row.xem as boolean) ? "✓" : "—"}</span>
+    ),
+    width: "60px",
+  },
+  {
+    key: "tao",
+    label: "Tạo",
+    render: (row: Record<string, unknown>) => (
+      <span className="text-green-600 font-semibold text-center block">{(row.tao as boolean) ? "✓" : "—"}</span>
+    ),
+    width: "60px",
+  },
+  {
+    key: "sua",
+    label: "Sửa",
+    render: (row: Record<string, unknown>) => (
+      <span className="text-green-600 font-semibold text-center block">{(row.sua as boolean) ? "✓" : "—"}</span>
+    ),
+    width: "60px",
+  },
+  {
+    key: "xoa",
+    label: "Xóa",
+    render: (row: Record<string, unknown>) => (
+      <span className="text-green-600 font-semibold text-center block">{(row.xoa as boolean) ? "✓" : "—"}</span>
+    ),
+    width: "60px",
+  },
+  {
+    key: "phe_duyet",
+    label: "Phê duyệt",
+    render: (row: Record<string, unknown>) => (
+      <span className="text-green-600 font-semibold text-center block">{(row.phe_duyet as boolean) ? "✓" : "—"}</span>
+    ),
+    width: "80px",
+  },
+  { key: "ngay_cap_nhat", label: "Ngày cập nhật", width: "130px" },
+  {
+    key: "trang_thai",
+    label: "Trạng thái",
+    render: (row: Record<string, unknown>) => (
+      <Badge variant={row.trang_thai === "active" ? "success" : "neutral"}>
+        {row.trang_thai === "active" ? "Hoạt động" : "Vô hiệu"}
+      </Badge>
+    ),
+    width: "110px",
+  },
+];
 
 export default function Page() {
+  const router = useRouter();
+
+  const handleRowClick = (row: Record<string, unknown>) => {
+    router.push(`/quan-tri/phan-quyen/chi-tiet?id=${row.id as string}`);
+  };
+
+  const handleAddClick = () => {
+    router.push("/quan-tri/phan-quyen/them-moi");
+  };
+
   return (
     <DashboardLayout>
+      <Breadcrumb items={PermissionBreadcrumbs.list} />
+
       <div className="mb-6">
         <h1 className="text-xl font-bold text-gray-900">Phân quyền</h1>
-        <p className="text-sm text-gray-500 mt-1">Thiết lập vai trò và phân quyền chức năng trong hệ thống</p>
+        <p className="text-sm text-gray-500 mt-1">Quản lý quyền truy cập cho vai trò và module trong hệ thống</p>
       </div>
 
-      {/* Role Summary Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {roles.map((r) => (
-          <div key={r.role} className="bg-white rounded-2xl border border-gray-100 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-sm font-semibold text-gray-800">{r.role}</p>
-            </div>
-            <p className="text-[14px] text-gray-500 mb-3">{r.desc}</p>
-            <div className="flex flex-wrap gap-1">
-              {r.permissions.xem && <Badge variant="info">Xem</Badge>}
-              {r.permissions.tao && <Badge variant="success">Tạo</Badge>}
-              {r.permissions.sua && <Badge variant="warning">Sửa</Badge>}
-              {r.permissions.xoa && <Badge variant="danger">Xóa</Badge>}
-              {r.permissions.phe_duyet && <Badge variant="neutral">Phê duyệt</Badge>}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Permission Matrix */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="p-5 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-700">Ma trận phân quyền theo module</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-4 py-3 text-[14px] font-semibold text-gray-600 w-40">Module</th>
-                {roleOrder.map((role) => (
-                  <th key={role} className="text-center px-2 py-3 text-[14px] font-semibold text-gray-600" colSpan={5}>
-                    {role}
-                  </th>
-                ))}
-              </tr>
-              <tr className="border-t border-gray-100">
-                <th className="text-left px-4 py-2 text-[14px] text-gray-400"></th>
-                {roleOrder.map((role) => (
-                  ["Xem", "Tạo", "Sửa", "Xóa", "PD"].map((perm) => (
-                    <th key={`${role}-${perm}`} className="text-center px-1 py-2 text-[14px] text-gray-400 font-normal">{perm}</th>
-                  ))
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {modules.map((mod, i) => (
-                <tr key={mod.name} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-3 font-medium text-gray-700 text-[14px]">{mod.name}</td>
-                  {roleOrder.map((role) => {
-                    const perms = mod.roles[role as keyof typeof mod.roles];
-                    return (
-                      <>
-                        <td key={`${role}-xem`} className="px-1 py-3"><PermCell allowed={perms.xem} /></td>
-                        <td key={`${role}-tao`} className="px-1 py-3"><PermCell allowed={perms.tao} /></td>
-                        <td key={`${role}-sua`} className="px-1 py-3"><PermCell allowed={perms.sua} /></td>
-                        <td key={`${role}-xoa`} className="px-1 py-3"><PermCell allowed={perms.xoa} /></td>
-                        <td key={`${role}-pd`} className="px-1 py-3"><PermCell allowed={perms.phe_duyet} /></td>
-                      </>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <SectionPage
+        showHeader={false}
+        stats={[
+          { label: "Tổng phân quyền", value: data.length, variant: "info" },
+          { label: "Đang hoạt động", value: data.filter((d) => d.trang_thai === "active").length, variant: "success" },
+          { label: "Vai trò khác nhau", value: "8", variant: "warning" },
+          { label: "Module", value: "8", variant: "neutral" },
+        ]}
+        tableColumns={columns}
+        tableData={data}
+        searchKeys={["id", "vai_tro", "module"]}
+        addLabel="Thêm phân quyền"
+        searchable
+        onRowClick={handleRowClick}
+        actionButton={
+          <button
+            onClick={handleAddClick}
+            className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-4 py-2 transition-colors"
+          >
+            Thêm phân quyền
+          </button>
+        }
+      />
     </DashboardLayout>
   );
 }
