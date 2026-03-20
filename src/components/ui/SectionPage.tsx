@@ -34,7 +34,7 @@ export default function SectionPage({
   onRowClick,
 }: SectionPageProps) {
   return (
-    <>
+    <DashboardLayout>
       {showHeader && (
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -55,7 +55,7 @@ export default function SectionPage({
       )}
 
       {stats && (
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
           {stats.map((s) => (
             <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl px-4 py-3 border border-gray-100 dark:border-gray-800 flex items-center gap-3">
               <p className="text-[14px] text-gray-500 dark:text-gray-400">{s.label}</p>
@@ -72,6 +72,6 @@ export default function SectionPage({
         searchKeys={searchKeys}
         onRowClick={onRowClick}
       />
-    </>
+    </DashboardLayout>
   );
 }
