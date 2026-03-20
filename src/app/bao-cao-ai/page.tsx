@@ -1477,17 +1477,17 @@ function QuestionSuggestions({ onSelect, activeGroup }: { onSelect: (q: string) 
   const group = questionGroups[activeGroup];
   const colors = groupColorMap[group.color];
   return (
-    <div className="mb-3">
-      <ul className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-        {group.questions.slice(0, 3).map((q, i) => (
-          <li key={q} className={i < 2 ? "border-b border-gray-100 dark:border-gray-800" : ""}>
-            <button onClick={() => onSelect(q)} className={`w-full text-left flex items-start gap-2 px-3 py-2.5 text-[13px] text-gray-600 dark:text-gray-400 transition-all ${colors.card}`}>
-              <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${colors.dot}`} />
-              <span className="line-clamp-2">{q}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="flex gap-2 mb-3">
+      {group.questions.slice(0, 3).map((q) => (
+        <button
+          key={q}
+          onClick={() => onSelect(q)}
+          className={`flex-1 text-left flex items-start gap-1.5 px-3 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 text-[13px] text-gray-600 dark:text-gray-400 transition-all min-w-0 ${colors.card}`}
+        >
+          <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${colors.dot}`} />
+          <span className="line-clamp-2">{q}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -1533,7 +1533,31 @@ export default function BaoCaoAIPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [activeGroup, setActiveGroup] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [showMobilePanel, setShowMobilePanel] = useState(false);
+
+  // Keep container above keyboard on mobile using visualViewport API
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      if (!containerRef.current) return;
+      if (window.innerWidth < 1024) {
+        containerRef.current.style.height = `${vv.height - 64}px`;
+      } else {
+        containerRef.current.style.height = "";
+      }
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
   const [mobilePanelTab, setMobilePanelTab] = useState<"history" | "saved">("history");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
@@ -1582,7 +1606,7 @@ export default function BaoCaoAIPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100dvh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div ref={containerRef} className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100dvh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 
         {/* Left: History + Saved — hidden on mobile, always shown on desktop */}
         <div className="hidden xs:flex flex-col shrink-0 w-[300px] border-r border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -1768,7 +1792,7 @@ export default function BaoCaoAIPage() {
           )}
 
           {/* Input area */}
-          <div className="px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="px-4 pt-0 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-gray-800 shrink-0">
             <div className="flex items-center gap-2 mb-2 h-[50px]">
               <button onClick={() => setShowSuggestions((v) => !v)} className="flex items-center gap-1.5 shrink-0">
                 <Sparkles size={13} className="text-violet-500" />
