@@ -1582,7 +1582,7 @@ export default function BaoCaoAIPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100vh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100dvh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 
         {/* Left: History + Saved — hidden on mobile, always shown on desktop */}
         <div className="hidden xs:flex flex-col shrink-0 w-[300px] border-r border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -1768,7 +1768,7 @@ export default function BaoCaoAIPage() {
           )}
 
           {/* Input area */}
-          <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-gray-800 shrink-0">
             <div className="flex items-center gap-2 mb-2 h-[50px]">
               <button onClick={() => setShowSuggestions((v) => !v)} className="flex items-center gap-1.5 shrink-0">
                 <Sparkles size={13} className="text-violet-500" />
