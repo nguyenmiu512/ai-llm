@@ -22,7 +22,7 @@ export default function Breadcrumb({ items, showBackButton = true, onBackClick }
     if (onBackClick) {
       onBackClick();
     } else if (items.length >= 2 && items[items.length - 2].href) {
-      router.push(items[items.length - 2].href);
+      router.push(items[items.length - 2].href as string);
     } else if (items.length > 1) {
       router.back();
     }
@@ -46,7 +46,7 @@ export default function Breadcrumb({ items, showBackButton = true, onBackClick }
             {index > 0 && <ChevronRight size={14} className="text-gray-400" />}
             {item.href ? (
               <button
-                onClick={() => router.push(item.href)}
+                onClick={() => router.push(item.href as string)}
                 className={`transition-colors ${
                   item.active
                     ? "text-gray-900 font-medium"

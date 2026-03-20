@@ -19,6 +19,7 @@ const roleColors: Record<string, "success" | "info" | "warning" | "neutral" | "d
 };
 
 export default function Page() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     vai_tro: "",
     module: "",
