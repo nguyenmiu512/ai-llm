@@ -7,7 +7,7 @@ export interface NavItem {
 
 export const navigation: NavItem[] = [
   {
-    label: "Dashboard",
+    label: "Tổng quan",
     href: "/dashboard",
     children: [
       { label: "Tổng quan", href: "/dashboard" },
@@ -16,15 +16,39 @@ export const navigation: NavItem[] = [
     ],
   },
   {
-    label: "Truy xuất nguồn gốc",
-    href: "/truy-xuat",
+    label: "Quản lý cơ sở",
+    href: "/co-so",
     children: [
-      { label: "Sản phẩm", href: "/truy-xuat/san-pham" },
-      { label: "Mã Tem được cấp UID/QR", href: "/truy-xuat/tem-nhan" },
-      { label: "Danh sách sự kiện", href: "/truy-xuat/su-kien" },
-      { label: "Quản lý lô khai báo", href: "/truy-xuat/lo-khai-bao" },
-      { label: "Mẫu sự kiện trọng yếu", href: "/truy-xuat/mau-trong-yeu" },
-      { label: "Chứng chỉ được cấp", href: "/truy-xuat/chung-chi-duoc-cap" },
+      { label: "Phân loại cơ sở", href: "/co-so/phan-loai" },
+      { label: "Danh sách cơ sở", href: "/co-so/danh-sach" },
+    ],
+  },
+  {
+    label: "Quản lý ATTP",
+    href: "/quan-ly-attp",
+    children: [
+      { label: "Giấy chứng nhận ATTP", href: "/chung-nhan-attp/danh-sach" },
+      { label: "Hồ sơ tự công bố", href: "/tu-cong-bo/danh-sach" },
+      { label: "Kiểm tra ATTP", href: "/kiem-tra" },
+      { label: "Ngộ độc thực phẩm", href: "/ngo-doc/danh-sach" },
+    ],
+  },
+  {
+    label: "Truyền thông ATTP",
+    href: "/truyen-thong",
+    children: [
+      { label: "Danh sách truyền thông", href: "/truyen-thong/chien-dich" },
+    ],
+  },
+  {
+    label: "Báo cáo thống kê",
+    href: "/bao-cao",
+    children: [
+      { label: "Báo cáo cơ sở", href: "/bao-cao/co-so" },
+      { label: "Báo cáo giấy ATTP", href: "/bao-cao/giay-attp" },
+      { label: "Báo cáo kiểm tra", href: "/bao-cao/kiem-tra" },
+      { label: "Báo cáo ngộ độc", href: "/bao-cao/ngo-doc" },
+      { label: "Báo cáo truyền thông", href: "/bao-cao/truyen-thong" },
     ],
   },
   {

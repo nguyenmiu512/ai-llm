@@ -19,14 +19,21 @@ import {
   Search,
   X,
   ArrowRight,
+  Building2,
+  Utensils,
+  Megaphone,
 } from "lucide-react";
 
 // ── Icon map ──────────────────────────────────────────────────────────────────
 const sectionIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   Dashboard: LayoutDashboard,
   "Truy xuất nguồn gốc": ScanSearch,
-  
   "Báo cáo AI": BrainCircuit,
+  "Tổng quan": LayoutDashboard,
+  "Quản lý cơ sở": Building2,
+  "Quản lý ATTP": Utensils,
+  "Truyền thông ATTP": Megaphone,
+  "Báo cáo thống kê": BarChart2,
   "Quản trị hệ thống": ShieldCheck,
   "Danh mục hệ thống": BookOpen,
   "Tích hợp hệ thống": Plug,
