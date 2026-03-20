@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 interface SidebarContextType {
   isCollapsed: boolean;
+  isMobile: boolean;
   toggleSidebar: () => void;
 }
 
@@ -18,19 +19,39 @@ const routesWithoutSidebar = [
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Detect mobile and set initial collapsed state
   useEffect(() => {
-    const shouldCollapse = routesWithoutSidebar.some((route) => pathname.includes(route));
-    setIsCollapsed(shouldCollapse);
-  }, [pathname]);
+    const check = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) setIsCollapsed(true);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
-  const toggleSidebar = () => {
-    setIsCollapsed((v) => !v);
-  };
+  // Auto-collapse on specific routes
+  useEffect(() => {
+    if (routesWithoutSidebar.some((route) => pathname.includes(route))) {
+      setIsCollapsed(true);
+    } else if (!isMobile) {
+      setIsCollapsed(false);
+    }
+  }, [pathname, isMobile]);
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) setIsCollapsed(true);
+  }, [pathname, isMobile]);
+
+  const toggleSidebar = () => setIsCollapsed((v) => !v);
 
   return (
-    <SidebarContext.Provider value={{ isCollapsed, toggleSidebar }}>
+    <SidebarContext.Provider value={{ isCollapsed, isMobile, toggleSidebar }}>
       {children}
     </SidebarContext.Provider>
   );

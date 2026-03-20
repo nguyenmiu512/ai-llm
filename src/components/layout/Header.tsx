@@ -8,8 +8,8 @@ export default function Header() {
   const { isCollapsed, toggleSidebar } = useSidebar();
 
   return (
-    <header className={`fixed top-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-end px-6 z-20 transition-colors ${
-      isCollapsed ? "left-0" : "left-60"
+    <header className={`fixed top-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-end px-6 z-20 transition-all duration-300 ${
+      isCollapsed ? "left-0" : "left-0 lg:left-60"
     }`}>
       {/* Left - Sidebar Toggle */}
       <button

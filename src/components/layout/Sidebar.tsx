@@ -339,15 +339,19 @@ function NavSection({ item }: { item: NavItem }) {
 
 // ── Sidebar shell ─────────────────────────────────────────────────────────────
 export default function Sidebar() {
-  const { isCollapsed } = useSidebar();
-
-  if (isCollapsed) {
-    return null;
-  }
+  const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
 
   return (
-    <aside className={`fixed top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col z-30 transition-all duration-300 ${
-      isCollapsed ? "-translate-x-full opacity-0" : "w-60"
+    <>
+      {/* Mobile backdrop */}
+      {isMobile && !isCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 lg:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+    <aside className={`fixed top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col z-30 w-60 transition-all duration-300 ${
+      isCollapsed ? "-translate-x-full" : "translate-x-0"
     }`}>
       {/* Logo */}
       <div className="flex items-center px-5 py-4 border-b border-gray-100 dark:border-gray-800">
@@ -375,5 +379,6 @@ export default function Sidebar() {
       </nav>
 
     </aside>
+    </>
   );
 }

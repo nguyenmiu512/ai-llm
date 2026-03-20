@@ -709,7 +709,8 @@ function ChartArea({ chartType }: { chartType: ChartType }) {
       data={barData}
       xField="value"
       yField="company"
-      color="#1570EF"
+      colorField="company"
+      scale={{ color: { range: COLORS } }}
       barStyle={{ radius: [0, 4, 4, 0] }}
       label={{ position: "right" as const, style: { fill: "#6b7280", fontSize: 11 } }}
       xAxis={{ line: null, tickLine: null, label: { style: { fill: "#9ca3af", fontSize: 11 } } }}
@@ -728,7 +729,8 @@ function MiniBarChart() {
       data={barData}
       xField="value"
       yField="company"
-      color="#1570EF"
+      colorField="company"
+      scale={{ color: { range: COLORS } }}
       barStyle={{ radius: [0, 4, 4, 0] }}
       xAxis={{ line: null, tickLine: null, label: { style: { fill: "#9ca3af", fontSize: 10 } } }}
       yAxis={{ line: null, tickLine: null, label: { style: { fill: "#6b7280", fontSize: 10 } } }}
@@ -1036,7 +1038,7 @@ function ResultCard({ showToast, onSaveReport }: { showToast: (m: string) => voi
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr className="bg-gray-50 dark:bg-gray-800 text-gray-500 uppercase text-[11px] tracking-wide">
-                      <th className="text-left px-4 py-2.5 font-semibold">Loại vi phạm</th>
+                      <th className="text-left px-4 py-2.5 font-semibold">Nhóm vi phạm</th>
                       <th className="text-right px-4 py-2.5 font-semibold">T1</th>
                       <th className="text-right px-4 py-2.5 font-semibold">T2</th>
                       <th className="text-right px-4 py-2.5 font-semibold">T3</th>
@@ -1046,10 +1048,19 @@ function ResultCard({ showToast, onSaveReport }: { showToast: (m: string) => voi
                   </thead>
                   <tbody>
                     {violationRows.map((r, i) => (
-                      <tr key={i} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <tr
+                        key={i}
+                        className="border-t border-gray-100 dark:border-gray-800 transition-colors"
+                        style={{ borderLeft: `4px solid ${r.color}`, backgroundColor: r.color + "0d" }}
+                      >
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-2.5">
-                            <span className="size-2.5 rounded-full shrink-0" style={{ background: r.color }} />
+                            <span
+                              className="shrink-0 px-2 py-0.5 rounded-md text-[11px] font-bold text-white"
+                              style={{ background: r.color }}
+                            >
+                              G{i + 1}
+                            </span>
                             <span className="font-medium text-gray-800 dark:text-gray-100">{r.loai}</span>
                           </div>
                         </td>
@@ -1057,7 +1068,7 @@ function ResultCard({ showToast, onSaveReport }: { showToast: (m: string) => voi
                         <td className="px-4 py-2.5 text-right font-mono text-gray-700 dark:text-gray-200">{r.t2}</td>
                         <td className="px-4 py-2.5 text-right font-mono text-gray-700 dark:text-gray-200">{r.t3}</td>
                         <td className="px-4 py-2.5 text-right">
-                          <span className="font-bold text-gray-900 dark:text-white" style={{ color: r.color }}>{r.tong}</span>
+                          <span className="font-bold" style={{ color: r.color }}>{r.tong}</span>
                         </td>
                         <td className="px-4 py-2.5 text-center">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${r.muc === "Cao" ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800" : r.muc === "Trung bình" ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800" : "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"}`}>
@@ -1068,6 +1079,15 @@ function ResultCard({ showToast, onSaveReport }: { showToast: (m: string) => voi
                     ))}
                   </tbody>
                 </table>
+                {/* Legend */}
+                <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 flex flex-wrap gap-x-4 gap-y-1">
+                  {violationRows.map((r, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="size-2.5 rounded-full shrink-0" style={{ background: r.color }} />
+                      <span className="text-[11px] text-gray-500 dark:text-gray-400">G{i + 1} — {r.loai}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

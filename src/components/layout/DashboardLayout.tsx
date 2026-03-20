@@ -19,7 +19,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       <Sidebar />
       <Header />
-      <main className={`${isCollapsed ? "ml-0" : "ml-60"} pt-16 transition-all duration-300`}>
+      <main className={`pt-16 transition-all duration-300 ${isCollapsed ? "ml-0" : "ml-0 lg:ml-60"}`}>
         <div className="p-6">{children}</div>
       </main>
     </div>
