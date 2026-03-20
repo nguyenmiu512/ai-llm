@@ -1,6 +1,7 @@
 export interface NavItem {
   label: string;
   href: string;
+  badge?: string;
   children?: NavItem[];
 }
 
@@ -54,6 +55,7 @@ export const navigation: NavItem[] = [
   {
     label: "Báo cáo AI",
     href: "/bao-cao-ai",
+    badge: "New",
   },
   {
     label: "Tích hợp hệ thống",

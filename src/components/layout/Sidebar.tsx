@@ -309,6 +309,11 @@ function NavSection({ item }: { item: NavItem }) {
       <Link href={item.href} className={itemClass}>
         <Icon size={17} className={iconClass} />
         <span className="flex-1 text-left leading-tight">{item.label}</span>
+        {item.badge && (
+          <span className="shrink-0 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-red-500 text-white leading-none">
+            {item.badge}
+          </span>
+        )}
       </Link>
     );
   }
