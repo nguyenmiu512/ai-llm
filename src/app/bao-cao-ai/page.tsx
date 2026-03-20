@@ -1134,7 +1134,7 @@ function ResultCard({ showToast, onSaveReport }: { showToast: (m: string) => voi
             <p className="text-[13px] font-semibold text-gray-700 dark:text-gray-200 mb-3 flex items-center gap-2">
               <Sparkles size={13} className="text-violet-500" /> Nhận định AI
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {aiInsights.map((ins) => {
                 const colorMap: Record<string, { bg: string; border: string; icon: string; iconBg: string }> = {
                   blue:   { bg: "bg-blue-50 dark:bg-blue-900/10",   border: "border-blue-100 dark:border-blue-800",   icon: "text-blue-600 dark:text-blue-400",   iconBg: "bg-blue-100 dark:bg-blue-900/30" },
@@ -1204,12 +1204,14 @@ function SimpleAIMessage({ answer, time, onSaveReport }: { answer: typeof demoAn
 // ── Combined Side Panel (History + Saved) ─────────────────────────────────────
 function SidePanel({
   activeId, onSelect, onNew,
-  reports, onNewReport, onView, onDelete,
+  reports, onNewReport, onView, onDelete, forceTab,
 }: {
   activeId: number; onSelect: (id: number) => void; onNew: () => void;
   reports: SavedReport[]; onNewReport: () => void; onView: (r: SavedReport) => void; onDelete: (id: number) => void;
+  forceTab?: "history" | "saved";
 }) {
   const [tab, setTab] = useState<"history" | "saved">("history");
+  useEffect(() => { if (forceTab) setTab(forceTab); }, [forceTab]);
   return (
     <div className="flex flex-col h-full">
       {/* Tab header */}
@@ -1297,7 +1299,7 @@ function HistoryPanel({ activeId, onSelect, onNew }: { activeId: number; onSelec
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1">
+      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1.5">
         {/* Search results */}
         {filtered !== null && (
           filtered.length > 0 ? (
@@ -1309,7 +1311,7 @@ function HistoryPanel({ activeId, onSelect, onNew }: { activeId: number; onSelec
                 <button
                   key={item.id}
                   onClick={() => { onSelect(item.id); setQuery(""); }}
-                  className={`w-full text-left px-2.5 py-2.5 rounded-xl transition-all ${activeId === item.id ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-800"}`}
+                  className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all ${activeId === item.id ? "bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-700" : "border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"}`}
                 >
                   <p className={`text-[13px] font-medium leading-snug line-clamp-2 ${activeId === item.id ? "text-brand-700 dark:text-brand-300" : "text-gray-700 dark:text-gray-300"}`}>
                     <Highlight text={item.title} />
@@ -1322,13 +1324,6 @@ function HistoryPanel({ activeId, onSelect, onNew }: { activeId: number; onSelec
                     <span className="text-[11px] text-gray-400">{item.time}</span>
                     <MessageSquare size={10} className="text-gray-400 ml-auto shrink-0" />
                     <span className="text-[11px] text-gray-400">{item.msgs}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {item.tags.map((t) => (
-                      <span key={t} className={`text-[11px] px-1.5 py-0.5 rounded-md ${t.toLowerCase().includes(q) ? "bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400" : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"}`}>
-                        <Highlight text={t} />
-                      </span>
-                    ))}
                   </div>
                 </button>
               ))}
@@ -1346,12 +1341,12 @@ function HistoryPanel({ activeId, onSelect, onNew }: { activeId: number; onSelec
         {filtered === null && historyGroups.map((group) => (
           <div key={group.label}>
             <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{group.label}</p>
-            <div className="space-y-0.5">
+            <div className="space-y-1.5">
               {group.items.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onSelect(item.id)}
-                  className={`w-full text-left px-2.5 py-2.5 rounded-xl transition-all group ${activeId === item.id ? "bg-brand-50 dark:bg-brand-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-800"}`}
+                  className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all group ${activeId === item.id ? "bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-700" : "border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"}`}
                 >
                   <p className={`text-[13px] font-medium leading-snug line-clamp-2 ${activeId === item.id ? "text-brand-700 dark:text-brand-300" : "text-gray-700 dark:text-gray-300"}`}>{item.title}</p>
                   <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">{item.preview}</p>
@@ -1360,9 +1355,6 @@ function HistoryPanel({ activeId, onSelect, onNew }: { activeId: number; onSelec
                     <span className="text-[11px] text-gray-400">{item.time}</span>
                     <MessageSquare size={10} className="text-gray-400 ml-auto shrink-0" />
                     <span className="text-[11px] text-gray-400">{item.msgs}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {item.tags.map((t) => <span key={t} className="text-[11px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">{t}</span>)}
                   </div>
                 </button>
               ))}
@@ -1481,24 +1473,21 @@ const groupColorMap: Record<string, { tab: string; card: string; dot: string }> 
   green:  { tab: "bg-green-50 text-green-700 border-green-200", card: "hover:border-green-200 hover:bg-green-50/40", dot: "bg-green-400" },
 };
 
-function QuestionSuggestions({ onSelect }: { onSelect: (q: string) => void }) {
-  const [activeGroup, setActiveGroup] = useState(0);
+function QuestionSuggestions({ onSelect, activeGroup }: { onSelect: (q: string) => void; activeGroup: number }) {
   const group = questionGroups[activeGroup];
   const colors = groupColorMap[group.color];
   return (
     <div className="mb-3">
-      <div className="flex gap-1.5 mb-2 flex-wrap">
-        {questionGroups.map((g, i) => (
-          <button key={g.label} onClick={() => setActiveGroup(i)} className={`text-[12px] font-medium px-2.5 py-1 rounded-lg border transition-all ${activeGroup === i ? groupColorMap[g.color].tab : "text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"}`}>{g.label}</button>
+      <ul className="rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+        {group.questions.slice(0, 3).map((q, i) => (
+          <li key={q} className={i < 2 ? "border-b border-gray-100 dark:border-gray-800" : ""}>
+            <button onClick={() => onSelect(q)} className={`w-full text-left flex items-start gap-2 px-3 py-2.5 text-[13px] text-gray-600 dark:text-gray-400 transition-all ${colors.card}`}>
+              <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${colors.dot}`} />
+              <span className="line-clamp-2">{q}</span>
+            </button>
+          </li>
         ))}
-      </div>
-      <div className="grid grid-cols-2 gap-1.5">
-        {group.questions.map((q) => (
-          <button key={q} onClick={() => onSelect(q)} className={`text-left px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 text-[13px] text-gray-600 dark:text-gray-400 transition-all ${colors.card}`}>
-            <span className={`inline-block size-1.5 rounded-full mr-1.5 mb-0.5 ${colors.dot}`} />{q}
-          </button>
-        ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -1534,7 +1523,6 @@ export default function BaoCaoAIPage() {
   const [chatTitle, setChatTitle] = useState("Phân tích vi phạm chuỗi cung ứng Q1/2026");
   const [isNewChat, setIsNewChat] = useState(false);
   const [input, setInput] = useState("");
-  const [mode, setMode] = useState<"free" | "guided">("free");
   const [extraMessages, setExtraMessages] = useState<Message[]>([]);
   const [toast, setToast] = useState("");
   const [savedReports, setSavedReports] = useState<SavedReport[]>(initialSavedReports);
@@ -1542,7 +1530,12 @@ export default function BaoCaoAIPage() {
   const [viewReport, setViewReport] = useState<SavedReport | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [activeGroup, setActiveGroup] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showMobilePanel, setShowMobilePanel] = useState(false);
+  const [mobilePanelTab, setMobilePanelTab] = useState<"history" | "saved">("history");
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
@@ -1589,18 +1582,18 @@ export default function BaoCaoAIPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex gap-0 -m-6 h-[calc(100vh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100vh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 
-        {/* Left: History + Saved */}
-        <div className="w-[300px] shrink-0 border-r border-gray-100 dark:border-gray-800 overflow-hidden">
+        {/* Left: History + Saved — hidden on mobile, always shown on desktop */}
+        <div className="hidden xs:flex flex-col shrink-0 w-[300px] border-r border-gray-100 dark:border-gray-800 overflow-hidden">
           <SidePanel
             activeId={activeHistoryId} onSelect={handleSelectHistory} onNew={handleNewChat}
             reports={savedReports} onNewReport={() => setShowSaveModal(true)} onView={setViewReport} onDelete={handleDeleteReport}
           />
         </div>
 
-        {/* Center: Chat */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f9fafb] dark:bg-gray-950">
+        {/* Center: Chat — always full width on mobile */}
+        <div className="flex flex-1 flex-col min-w-0 overflow-hidden bg-[#f9fafb] dark:bg-gray-950">
           {/* Top bar */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
@@ -1611,12 +1604,34 @@ export default function BaoCaoAIPage() {
               <button onClick={handleNewChat} className="flex items-center gap-1.5 text-[13px] font-medium text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded-lg transition-colors">
                 <Plus size={14} /> <span>Tạo chat mới</span>
               </button>
-              <button className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <Search size={13} /> <span className="hidden sm:inline">Tìm</span>
-              </button>
-              <button onClick={() => setShowAdvanced(true)} className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <LayoutGrid size={13} /> <span className="hidden sm:inline">Cài đặt</span>
-              </button>
+              {/* More menu — mobile only */}
+              <div className="relative xs:hidden">
+                <button
+                  onClick={() => setShowMoreMenu((v) => !v)}
+                  className="flex items-center justify-center size-8 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <MoreHorizontal size={16} />
+                </button>
+                {showMoreMenu && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowMoreMenu(false)} />
+                    <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-lg z-40 overflow-hidden">
+                      <button
+                        onClick={() => { setMobilePanelTab("history"); setShowMobilePanel(true); setShowMoreMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <Clock size={14} className="text-gray-400 shrink-0" /> Lịch sử
+                      </button>
+                      <button
+                        onClick={() => { setMobilePanelTab("saved"); setShowMobilePanel(true); setShowMoreMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-[13px] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-t border-gray-50 dark:border-gray-800 transition-colors"
+                      >
+                        <BookmarkPlus size={14} className="text-gray-400 shrink-0" /> Đã lưu
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
               <button onClick={() => showToast("Đã sao chép liên kết!")} className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 px-2.5 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 <Share2 size={13} /> <span className="hidden sm:inline">Chia sẻ</span>
               </button>
@@ -1753,26 +1768,30 @@ export default function BaoCaoAIPage() {
           )}
 
           {/* Input area */}
-          <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 shrink-0">
-            <div className="flex items-center gap-2 mb-2.5">
-              <div className="flex items-center gap-1 p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg shrink-0">
-                {(["free", "guided"] as const).map((m) => (
-                  <button key={m} onClick={() => setMode(m)} className={`px-3 py-1 rounded-md text-[13px] font-medium transition-all ${mode === m ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}>
-                    {m === "free" ? "Tự do" : "Hướng dẫn"}
-                  </button>
-                ))}
-              </div>
+          <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
+            <div className="flex items-center gap-2 mb-2 h-[50px]">
+              <button onClick={() => setShowSuggestions((v) => !v)} className="flex items-center gap-1.5 shrink-0">
+                <Sparkles size={13} className="text-violet-500" />
+                <span className="text-[13px] font-semibold text-gray-700 dark:text-gray-200">Gợi ý câu hỏi</span>
+                <ChevronDown size={14} className={`text-gray-400 transition-transform duration-200 ${showSuggestions ? "" : "-rotate-90"}`} />
+              </button>
+              {showSuggestions && (
+                <div className="flex-1 flex justify-end">
+                  <div className="flex p-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    {questionGroups.map((g, i) => (
+                      <button
+                        key={g.label}
+                        onClick={() => setActiveGroup(i)}
+                        className={`px-2.5 py-1 rounded-md text-[12px] font-medium transition-all ${activeGroup === i ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"}`}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            {mode === "guided" && <QuestionSuggestions onSelect={(q) => setInput(q)} />}
-            {mode === "free" && (
-              <div className="flex items-center gap-1.5 overflow-x-auto mb-2.5 pb-0.5">
-                {Object.keys(demoAnswers).map((q) => (
-                  <button key={q} onClick={() => handleSend(q)} className="shrink-0 text-[12px] px-2.5 py-1 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-brand-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors whitespace-nowrap max-w-[200px] truncate">
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
+            {showSuggestions && <QuestionSuggestions onSelect={(q) => setInput(q)} activeGroup={activeGroup} />}
             {/* Attached files chips */}
             {attachedFiles.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
@@ -1824,6 +1843,33 @@ export default function BaoCaoAIPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Mobile panel drawer (Xem thêm) ── */}
+        {showMobilePanel && (
+          <div className="xs:hidden fixed inset-0 z-50 flex">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/40" onClick={() => setShowMobilePanel(false)} />
+            {/* Panel */}
+            <div className="relative w-[300px] max-w-[85vw] h-full bg-white dark:bg-gray-900 flex flex-col shadow-xl">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <span className="text-[14px] font-semibold text-gray-800 dark:text-gray-100">Xem thêm</span>
+                <button onClick={() => setShowMobilePanel(false)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <X size={15} />
+                </button>
+              </div>
+              {/* SidePanel content */}
+              <div className="flex-1 overflow-hidden">
+                <SidePanel
+                  activeId={activeHistoryId}
+                  onSelect={(id) => { handleSelectHistory(id); setShowMobilePanel(false); }}
+                  onNew={() => { handleNewChat(); setShowMobilePanel(false); }}
+                  reports={savedReports} onNewReport={() => setShowSaveModal(true)} onView={setViewReport} onDelete={handleDeleteReport}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
 

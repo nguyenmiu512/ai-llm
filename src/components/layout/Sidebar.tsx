@@ -312,8 +312,9 @@ function NavSection({ item }: { item: NavItem }) {
     : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300";
 
   if (!item.children?.length) {
+    const isTall = item.href === "/bao-cao-ai";
     return (
-      <Link href={item.href} className={itemClass}>
+      <Link href={item.href} className={`${itemClass} ${isTall ? "h-[60px]" : ""}`}>
         <Icon size={17} className={iconClass} />
         <span className="flex-1 text-left leading-tight">{item.label}</span>
         {item.badge && (

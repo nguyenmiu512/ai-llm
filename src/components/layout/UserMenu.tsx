@@ -242,22 +242,22 @@ export default function UserMenu() {
             open ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-50 dark:hover:bg-gray-800"
           }`}
         >
-          <div className="size-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-[14px] font-bold">
+          <div className="size-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-[14px] font-bold shrink-0">
             A
           </div>
-          <div className="text-left">
+          <div className="text-left hidden sm:block">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none">Admin</p>
             <p className="text-[14px] text-gray-400">Quản trị viên</p>
           </div>
           <ChevronDown
             size={14}
-            className={`text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform duration-200 hidden sm:block ${open ? "rotate-180" : ""}`}
           />
         </button>
 
         {/* Dropdown */}
         {open && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50">
+          <div className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50">
             {/* User info */}
             <div className="px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
               <div className="size-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow">

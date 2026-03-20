@@ -77,16 +77,16 @@ export const navigation: NavItem[] = [
     ],
   },
   {
-    label: "Báo cáo AI",
-    href: "/bao-cao-ai",
-    badge: "New",
-  },
-  {
     label: "Tích hợp hệ thống",
     href: "/tich-hop",
     children: [
       { label: "Sự kiện tích hợp", href: "/tich-hop/webhook" },
       { label: "Nhật ký giao dịch", href: "/tich-hop/transaction" },
     ],
+  },
+  {
+    label: "Báo cáo AI",
+    href: "/bao-cao-ai",
+    badge: "New",
   },
 ];

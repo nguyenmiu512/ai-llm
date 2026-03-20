@@ -105,21 +105,21 @@ export default function DataTable<T extends Record<string, unknown>>({
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* Toolbar */}
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3 flex-wrap">
+      <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 sm:gap-3 flex-wrap">
         {/* Search input */}
         {searchable && (
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               placeholder="Tìm kiếm..."
-              className="pl-8 pr-3 py-2 text-[14px] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 outline-none focus:border-brand-400 transition-colors w-48"
+              className="pl-8 pr-3 py-2 text-[14px] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 outline-none focus:border-brand-400 transition-colors w-full sm:w-44"
             />
           </div>
         )}
-        {/* Filter dropdowns - all in one line */}
+        {/* Filter dropdowns */}
         {filterableCols.length > 0 && filterableCols.map((col) => {
           const key = String(col.key);
           const options = Array.from(new Set(data.map((r) => String(r[key] ?? "")))).sort((a, b) =>
@@ -128,11 +128,11 @@ export default function DataTable<T extends Record<string, unknown>>({
           const active = filters[key] ?? "";
 
           return (
-            <div key={key} className="relative">
+            <div key={key} className="relative flex-1 sm:flex-none">
               <select
                 value={active}
                 onChange={(e) => setFilter(key, e.target.value)}
-                className="appearance-none pl-3 pr-8 py-2 text-[14px] rounded-xl border outline-none transition-colors cursor-pointer bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 focus:border-brand-400 max-w-[172px]"
+                className="appearance-none w-full pl-3 pr-8 py-2 text-[14px] rounded-xl border outline-none transition-colors cursor-pointer bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 focus:border-brand-400 sm:max-w-[160px]"
               >
                 <option value="">{col.label}</option>
                 {options.map((o) => (
@@ -148,14 +148,14 @@ export default function DataTable<T extends Record<string, unknown>>({
         {activeFilterCount > 0 && (
           <button
             onClick={clearFilters}
-            className="flex items-center gap-1 text-[14px] text-red-500 hover:text-red-600 transition-colors"
+            className="flex items-center gap-1 text-[14px] text-red-500 hover:text-red-600 transition-colors shrink-0"
           >
-            <X size={13} /> Xóa bộ lọc
+            <X size={13} /> <span className="hidden sm:inline">Xóa bộ lọc</span>
           </button>
         )}
 
         {/* Record count */}
-        <p className="ml-auto text-[14px] text-gray-400">{total} bản ghi</p>
+        <p className="ml-auto text-[13px] sm:text-[14px] text-gray-400 shrink-0">{total} bản ghi</p>
       </div>
       {/* Table */}
       <div className="overflow-x-auto">
@@ -224,9 +224,9 @@ export default function DataTable<T extends Record<string, unknown>>({
 
       {/* Pagination */}
       {pages > 1 && (
-        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800">
-          <p className="text-[14px] text-gray-500">
-            {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} / {total} bản ghi
+        <div className="flex items-center justify-between px-3 sm:px-5 py-3 border-t border-gray-100 dark:border-gray-800 gap-2">
+          <p className="text-[12px] sm:text-[14px] text-gray-500 shrink-0">
+            {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} / {total}
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -240,12 +240,13 @@ export default function DataTable<T extends Record<string, unknown>>({
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`min-w-[28px] h-7 rounded-lg text-[14px] font-medium transition-colors ${p === page ? "bg-brand-600 text-white" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  }`}
+                className={`min-w-[26px] sm:min-w-[28px] h-7 rounded-lg text-[13px] sm:text-[14px] font-medium transition-colors hidden sm:inline-flex items-center justify-center ${p === page ? "bg-brand-600 text-white" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"}`}
               >
                 {p}
               </button>
             ))}
+            {/* Mobile: show current/total only */}
+            <span className="text-[13px] text-gray-500 px-2 sm:hidden">{page}/{pages}</span>
             <button
               onClick={() => setPage((p) => Math.min(pages, p + 1))}
               disabled={page === pages}

@@ -3,6 +3,9 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Custom breakpoints */
+  --breakpoint-xs: 30rem; /* 480px */
+
   /* Font sizes */
   --font-size-xs:   0.875rem;   /* 14px */
   --font-size-sm:   1rem;       /* 16px */

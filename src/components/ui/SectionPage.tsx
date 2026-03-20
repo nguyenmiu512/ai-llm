@@ -36,18 +36,18 @@ export default function SectionPage({
   return (
     <DashboardLayout>
       {showHeader && (
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h1>
-            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">{title}</h1>
+            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{subtitle}</p>}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <Download size={14} /> Xuất
+              <Download size={14} /> <span className="hidden sm:inline">Xuất</span>
             </button>
             {actionButton || (
-              <button className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-4 py-2 transition-colors">
-                <Plus size={14} /> {addLabel}
+              <button className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-3 sm:px-4 py-2 transition-colors">
+                <Plus size={14} /> <span className="hidden xs:inline">{addLabel}</span>
               </button>
             )}
           </div>
@@ -55,10 +55,10 @@ export default function SectionPage({
       )}
 
       {stats && (
-        <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 mb-5">
           {stats.map((s) => (
-            <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl px-4 py-3 border border-gray-100 dark:border-gray-800 flex items-center gap-3">
-              <p className="text-[14px] text-gray-500 dark:text-gray-400">{s.label}</p>
+            <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-100 dark:border-gray-800 flex items-center gap-2 sm:gap-3 min-w-0">
+              <p className="text-[13px] sm:text-[14px] text-gray-500 dark:text-gray-400 truncate">{s.label}</p>
               <Badge variant={s.variant}>{s.value}</Badge>
             </div>
           ))}
