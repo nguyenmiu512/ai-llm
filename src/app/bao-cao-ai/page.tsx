@@ -1806,7 +1806,7 @@ export default function BaoCaoAIPage() {
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center h-14 rounded-[1000px] border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-brand-400 dark:focus-within:border-brand-500 transition-colors px-2 gap-1">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1822,23 +1822,29 @@ export default function BaoCaoAIPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 title="Đính kèm tệp"
-                className="shrink-0 size-14 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 hover:text-brand-600 hover:border-brand-300 dark:hover:border-brand-600 flex items-center justify-center transition-colors"
+                className="shrink-0 size-9 rounded-full text-gray-400 hover:text-brand-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
               >
-                <Paperclip size={18} />
+                <Paperclip size={17} />
               </button>
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(input); } }}
-                  placeholder="Hãy phân tích… (Enter để gửi)"
-                  className="w-full h-14 px-5 pr-10 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[15px] text-gray-700 dark:text-gray-300 placeholder-gray-400 outline-none focus:border-brand-400 dark:focus:border-brand-500 transition-colors"
-                />
-                {input && <button onClick={() => setInput("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"><X size={14} /></button>}
-              </div>
-              <button onClick={() => handleSend(input)} disabled={!input.trim() && attachedFiles.length === 0} className="shrink-0 size-14 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors">
-                <Send size={18} />
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(input); } }}
+                placeholder="Bạn cần tôi giúp đỡ điều gì?"
+                className="flex-1 h-full bg-transparent text-[15px] text-gray-700 dark:text-gray-300 placeholder-gray-400 outline-none"
+              />
+              {input && (
+                <button onClick={() => setInput("")} className="shrink-0 size-6 rounded-full text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors">
+                  <X size={13} />
+                </button>
+              )}
+              <button
+                onClick={() => handleSend(input)}
+                disabled={!input.trim() && attachedFiles.length === 0}
+                className="shrink-0 size-9 rounded-full bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+              >
+                <Send size={16} />
               </button>
             </div>
           </div>
