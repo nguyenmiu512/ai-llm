@@ -1533,31 +1533,35 @@ export default function BaoCaoAIPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [activeGroup, setActiveGroup] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const inputAreaRef = useRef<HTMLDivElement>(null);
+  const [inputBottom, setInputBottom] = useState(0);
+  const [inputAreaHeight, setInputAreaHeight] = useState(0);
   const [showMobilePanel, setShowMobilePanel] = useState(false);
 
-  // Keep container above keyboard on mobile using visualViewport API
+  // Gemini-style: fix input bar above keyboard using visualViewport
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const update = () => {
-      if (!containerRef.current) return;
-      if (window.innerWidth < 1024) {
-        containerRef.current.style.height = `${vv.height - 64}px`;
-      } else {
-        containerRef.current.style.height = "";
-      }
+      if (window.innerWidth >= 1024) { setInputBottom(0); return; }
+      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setInputBottom(kb);
     };
-    update();
+    const measure = () => {
+      if (inputAreaRef.current) setInputAreaHeight(inputAreaRef.current.offsetHeight);
+    };
+    update(); measure();
     vv.addEventListener("resize", update);
     vv.addEventListener("scroll", update);
-    window.addEventListener("resize", update);
+    const ro = new ResizeObserver(measure);
+    if (inputAreaRef.current) ro.observe(inputAreaRef.current);
     return () => {
       vv.removeEventListener("resize", update);
       vv.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      ro.disconnect();
     };
   }, []);
+
   const [mobilePanelTab, setMobilePanelTab] = useState<"history" | "saved">("history");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
@@ -1606,7 +1610,7 @@ export default function BaoCaoAIPage() {
 
   return (
     <DashboardLayout>
-      <div ref={containerRef} className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100dvh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex gap-0 -m-3 sm:-m-5 lg:-m-6 h-[calc(100dvh-4rem)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 
         {/* Left: History + Saved — hidden on mobile, always shown on desktop */}
         <div className="hidden xs:flex flex-col shrink-0 w-[300px] border-r border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -1666,7 +1670,7 @@ export default function BaoCaoAIPage() {
           {isNewChat ? (
             <EmptyState onSelect={(q) => { setIsNewChat(false); handleSend(q); }} />
           ) : (
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 lg:pb-4" style={{ paddingBottom: inputAreaHeight ? inputAreaHeight + 8 : undefined }}>
               {/* Pre-loaded conversation (history id 1) */}
               {activeHistoryId === 1 && (
                 <>
@@ -1791,8 +1795,12 @@ export default function BaoCaoAIPage() {
             </div>
           )}
 
-          {/* Input area */}
-          <div className="px-4 pt-0 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-gray-800 shrink-0">
+          {/* Input area — fixed above keyboard on mobile (Gemini-style), normal flow on desktop */}
+          <div
+            ref={inputAreaRef}
+            className="fixed left-0 right-0 z-10 lg:static lg:z-auto bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 lg:shrink-0 px-4"
+            style={{ bottom: inputBottom, paddingBottom: `max(1rem, env(safe-area-inset-bottom))` }}
+          >
             <div className="flex items-center gap-2 mb-2 h-[50px]">
               <button onClick={() => setShowSuggestions((v) => !v)} className="flex items-center gap-1.5 shrink-0">
                 <Sparkles size={13} className="text-violet-500" />
