@@ -1,0 +1,8 @@
+Guideline 
+- Read folder ai and summarize the project rules before coding.
+Lúc này claude.md đóng vai trò entrypoint 
+Trong claude.md sẽ show các skill khác gồm: 
+- Design-system.md
+- UI-Designer-Agent -Personality.md
+- Workflow.md
+- Rule.md
