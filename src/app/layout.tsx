@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-context";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  interactiveWidget: "resizes-visual",
 };
 
 export default function RootLayout({
@@ -23,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${inter.className} antialiased`}>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider><SidebarProvider>{children}</SidebarProvider></ThemeProvider>
         </body>
     </html>
   );
