@@ -24,6 +24,8 @@ import ProgressOverlay, { OverlayState } from "@/components/chat/ProgressOverlay
 import { saveSession, INITIAL_SESSION_ID, SESSION_HIGH_RISK_ID, SESSION_EXPORT_ATTP_ID } from "@/lib/report-store";
 
 // ── Types ───────────────────────────────────────────────────────────────────
+type AnalysisStep = { label: string; status: "done" | "running" | "pending" };
+
 type Message = {
   id: string;
   role: "user" | "assistant";
@@ -407,7 +409,7 @@ export default function BaoCaoAIPage() {
   const [activeHistoryId, setActiveHistoryId] = useState("h1");
   const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [overlay, setOverlay] = useState<{ state: OverlayState; steps: { label: string; status: "done" | "running" | "pending" }[] } | null>(null);
+  const [overlay, setOverlay] = useState<{ state: OverlayState; steps: AnalysisStep[] } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleSelectHistory = (id: string) => {
@@ -443,13 +445,13 @@ export default function BaoCaoAIPage() {
 
     const cfg = questionId ? QUESTION_CONFIGS[questionId] : undefined;
     const stepLabels = cfg?.steps ?? ["Đang truy xuất dữ liệu...", "Phân tích và phân loại kết quả", "Tổng hợp báo cáo"];
-    const mockSteps = stepLabels.map(label => ({ label, status: "pending" as const }));
+    const mockSteps: AnalysisStep[] = stepLabels.map(label => ({ label, status: "pending" }));
 
     setOverlay({ state: "thinking", steps: [] });
-    setTimeout(() => setOverlay({ state: "streaming", steps: [{ ...mockSteps[0], status: "running" }, ...mockSteps.slice(1)] }), 700);
-    setTimeout(() => setOverlay({ state: "streaming", steps: [{ ...mockSteps[0], status: "done" }, { ...mockSteps[1], status: "running" }, ...mockSteps.slice(2)] }), 1400);
-    setTimeout(() => setOverlay({ state: "streaming", steps: [mockSteps[0], mockSteps[1], { ...mockSteps[2], status: "running" }].map((s, i) => i < 2 ? { ...s, status: "done" as const } : s) }), 2100);
-    setTimeout(() => setOverlay({ state: "done", steps: mockSteps.map(s => ({ ...s, status: "done" as const })) }), 2800);
+    setTimeout(() => setOverlay({ state: "streaming", steps: [{ ...mockSteps[0], status: "running" } as AnalysisStep, ...mockSteps.slice(1)] }), 700);
+    setTimeout(() => setOverlay({ state: "streaming", steps: [{ ...mockSteps[0], status: "done" } as AnalysisStep, { ...mockSteps[1], status: "running" } as AnalysisStep, ...mockSteps.slice(2)] }), 1400);
+    setTimeout(() => setOverlay({ state: "streaming", steps: ([mockSteps[0], mockSteps[1], { ...mockSteps[2], status: "running" }] as AnalysisStep[]).map((s, i) => i < 2 ? { ...s, status: "done" } as AnalysisStep : s) }), 2100);
+    setTimeout(() => setOverlay({ state: "done", steps: mockSteps.map(s => ({ ...s, status: "done" })) as AnalysisStep[] }), 2800);
     setTimeout(() => setOverlay(prev => prev ? { ...prev, state: "hidden" } : null), 3200);
 
     const sessionId = `session-${Date.now()}`;

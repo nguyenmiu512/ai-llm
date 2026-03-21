@@ -116,7 +116,7 @@ function ChartPanel({ type, height = 200, data }: { type: ChartType; height?: nu
           >
             {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
           </Pie>
-          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, name: string) => [v, name]} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, name: any) => [v, name]} />
           <Legend
             iconType="circle"
             iconSize={8}
