@@ -1,31 +1,77 @@
 "use client";
 
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import Badge from "@/components/ui/Badge";
+import DataTable from "@/components/ui/DataTable";
 import { ReactNode } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
 
 interface SectionPageProps {
-  title: string;
-  children: ReactNode;
+  title?: string;
+  subtitle?: string;
+  showHeader?: boolean;
+  stats?: { label: string; value: string | number; variant?: "success" | "warning" | "danger" | "info" | "neutral" }[];
+  tableColumns: { key: string; label: string; render?: (row: Record<string, unknown>) => ReactNode; width?: string }[];
+  tableData: Record<string, unknown>[];
+  addLabel?: string;
   actionButton?: ReactNode;
+  searchable?: boolean;
+  searchKeys?: string[];
+  onRowClick?: (row: Record<string, unknown>) => void;
 }
 
-export default function SectionPage({ title, children, actionButton }: SectionPageProps) {
+export default function SectionPage({
+  title,
+  subtitle,
+  showHeader = true,
+  stats,
+  tableColumns,
+  tableData,
+  addLabel = "Thêm mới",
+  actionButton,
+  searchable,
+  searchKeys,
+  onRowClick,
+}: SectionPageProps) {
   return (
-    <div className="h-full flex flex-col">
-      {/* Minimal Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-[19px] font-semibold text-gray-900 dark:text-white">{title}</h1>
-        <div className="flex items-center gap-2">
-          {actionButton}
+    <DashboardLayout>
+      {showHeader && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">{title}</h1>
+            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{subtitle}</p>}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <Download size={14} /> <span className="hidden sm:inline">Xuất</span>
+            </button>
+            {actionButton || (
+              <button className="flex items-center gap-1.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-3 sm:px-4 py-2 transition-colors">
+                <Plus size={14} /> <span className="hidden xs:inline">{addLabel}</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          {children}
+      {stats && (
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 mb-5">
+          {stats.map((s) => (
+            <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-100 dark:border-gray-800 flex items-center gap-2 sm:gap-3 min-w-0">
+              <p className="text-[13px] sm:text-[14px] text-gray-500 dark:text-gray-400 truncate">{s.label}</p>
+              <Badge variant={s.variant}>{s.value}</Badge>
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
+      )}
+
+      <DataTable
+        columns={tableColumns}
+        data={tableData}
+        searchable={searchable}
+        searchKeys={searchKeys}
+        onRowClick={onRowClick}
+      />
+    </DashboardLayout>
   );
 }

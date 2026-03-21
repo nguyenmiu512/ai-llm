@@ -1,14 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-context";
-import MainLayout from "@/components/layout/MainLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI LLM – Hệ thống quản lý mô hình AI",
-  description: "Nền tảng quản lý và triển khai các mô hình AI & LLM",
+  title: "NDATrace – Hệ thống quản lý chuỗi cung ứng",
+  description: "Nền tảng quản lý và truy xuất nguồn gốc chuỗi cung ứng",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -19,12 +23,8 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${inter.className} antialiased`}>
-        <ThemeProvider>
-          <MainLayout>
-            {children}
-          </MainLayout>
-        </ThemeProvider>
-      </body>
+          <ThemeProvider>{children}</ThemeProvider>
+        </body>
     </html>
   );
 }

@@ -1,13 +1,26 @@
 "use client";
 
 import Sidebar from "./Sidebar";
+import Header from "./Header";
+import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <SidebarProvider>
+      <InnerLayout children={children} />
+    </SidebarProvider>
+  );
+}
+
+function InnerLayout({ children }: { children: React.ReactNode }) {
+  const { isCollapsed } = useSidebar();
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       <Sidebar />
-      <main className="md:ml-64 min-h-screen pt-0">
-        <div className="px-6 py-4">{children}</div>
+      <Header />
+      <main className={`pt-16 transition-all duration-300 ${isCollapsed ? "ml-0" : "ml-0 lg:ml-60"}`}>
+        <div className="p-3 sm:p-5 lg:p-6">{children}</div>
       </main>
     </div>
   );

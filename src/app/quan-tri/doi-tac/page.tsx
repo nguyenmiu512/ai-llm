@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, MoreVertical } from "lucide-react";
+import { Plus } from "lucide-react";
+import SectionPage from "@/components/ui/SectionPage";
 import Badge from "@/components/ui/Badge";
 import AddPartnerModal from "@/components/AddPartnerModal";
-import SectionPage from "@/components/ui/SectionPage";
 
 interface PartnerData {
   id: string;
@@ -46,6 +46,31 @@ const loaiColors: Record<string, "success" | "info" | "warning" | "neutral"> = {
   "Tổ chức quốc tế": "success",
 };
 
+const columns = [
+  { key: "id", label: "Mã", width: "80px" },
+  {
+    key: "loai",
+    label: "Loại đối tác",
+    width: "170px",
+    render: (row: Record<string, unknown>) => (
+      <Badge variant={loaiColors[row.loai as string] ?? "neutral"}>{row.loai as string}</Badge>
+    ),
+  },
+  { key: "quoc_gia", label: "Quốc gia", width: "110px" },
+  { key: "lien_he", label: "Liên hệ", width: "150px" },
+  { key: "email", label: "Email" },
+  {
+    key: "trang_thai",
+    label: "Trạng thái",
+    width: "130px",
+    render: (row: Record<string, unknown>) => (
+      <Badge variant={row.trang_thai === "active" ? "success" : "neutral"}>
+        {row.trang_thai === "active" ? "Hoạt động" : "Ngừng hợp tác"}
+      </Badge>
+    ),
+  },
+];
+
 export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [partners, setPartners] = useState(data);
@@ -59,10 +84,9 @@ export default function Page() {
   const actionButton = (
     <button
       onClick={() => setIsModalOpen(true)}
-      className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-[15px] font-medium transition-colors"
+      className="flex items-center gap-1.5 text-[14px] font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-xl px-4 py-2 transition-colors"
     >
-      <Plus size={18} />
-      <span>Thêm đối tác</span>
+      <Plus size={14} /> Thêm đối tác
     </button>
   );
 
@@ -70,82 +94,17 @@ export default function Page() {
     <>
       <SectionPage
         title="Đối tác"
+        subtitle="Quản lý thông tin đối tác trong và ngoài nước của hệ thống"
+        stats={[
+          { label: "Tổng đối tác", value: partners.length, variant: "info" },
+          { label: "Đang hợp tác", value: partners.filter((d) => d.trang_thai === "active").length, variant: "success" },
+          { label: "Ngừng hợp tác", value: partners.filter((d) => d.trang_thai === "inactive").length, variant: "neutral" },
+          { label: "Đối tác quốc tế", value: partners.filter((d) => d.quoc_gia !== "Việt Nam").length, variant: "info" },
+        ]}
+        tableColumns={columns}
+        tableData={partners}
         actionButton={actionButton}
-      >
-        {/* Stats Bar */}
-        <div className="flex items-center gap-4 mb-6">
-          {[
-            { label: "Tổng đối tác", value: partners.length, color: "gray" },
-            { label: "Đang hợp tác", value: partners.filter((d) => d.trang_thai === "active").length, color: "teal" },
-            { label: "Ngừng hợp tác", value: partners.filter((d) => d.trang_thai === "inactive").length, color: "gray" },
-          ].map((stat, i) => (
-            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-900">
-              <span className="text-[14px] text-gray-500">{stat.label}</span>
-              <span className={`text-[19px] font-semibold ${stat.color === "teal" ? "text-teal-600" : "text-gray-700"}`}>{stat.value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Search & Filter Bar */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 flex items-center gap-3 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm đối tác..."
-              className="flex-1 bg-transparent text-[15px] text-gray-900 dark:text-white outline-none placeholder-gray-400"
-            />
-          </div>
-          <select className="px-4 py-2.5 text-[15px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-xl outline-none">
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Hoạt động</option>
-            <option value="inactive">Ngừng hợp tác</option>
-          </select>
-        </div>
-
-        {/* Table */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Mã</th>
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Loại đối tác</th>
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Quốc gia</th>
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Liên hệ</th>
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Email</th>
-                <th className="text-left px-5 py-3 text-[14px] font-semibold text-gray-500 uppercase tracking-wide">Trạng thái</th>
-                <th className="w-12"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {partners.map((partner, index) => (
-                <tr
-                  key={partner.id}
-                  className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <td className="px-5 py-3.5 text-[15px] text-gray-700 dark:text-gray-200">{partner.id}</td>
-                  <td className="px-5 py-3.5">
-                    <Badge variant={loaiColors[partner.loai] ?? "neutral"}>{partner.loai}</Badge>
-                  </td>
-                  <td className="px-5 py-3.5 text-[15px] text-gray-700 dark:text-gray-200">{partner.quoc_gia}</td>
-                  <td className="px-5 py-3.5 text-[15px] text-gray-700 dark:text-gray-200">{partner.lien_he}</td>
-                  <td className="px-5 py-3.5 text-[15px] text-gray-700 dark:text-gray-200">{partner.email}</td>
-                  <td className="px-5 py-3.5">
-                    <Badge variant={partner.trang_thai === "active" ? "success" : "neutral"}>
-                      {partner.trang_thai === "active" ? "Hoạt động" : "Ngừng hợp tác"}
-                    </Badge>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <button className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                      <MoreVertical size={16} className="text-gray-400" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SectionPage>
+      />
       <AddPartnerModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

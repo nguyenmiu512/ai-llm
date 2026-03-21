@@ -39,8 +39,8 @@ function RolePermissionModal({ onClose }: { onClose: () => void }) {
 
   const roles = [
     { id: "admin", label: "Quản trị viên", desc: "Toàn quyền hệ thống" },
-    { id: "manager", label: "Quản lý", desc: "Quản lý tổ chức & mô hình" },
-    { id: "developer", label: "Nhà phát triển", desc: "Xem và chỉnh sửa code" },
+    { id: "manager", label: "Quản lý", desc: "Quản lý tổ chức & sản phẩm" },
+    { id: "inspector", label: "Kiểm định viên", desc: "Xem và kiểm định" },
     { id: "viewer", label: "Người xem", desc: "Chỉ xem dữ liệu" },
   ];
 
@@ -75,7 +75,7 @@ function RolePermissionModal({ onClose }: { onClose: () => void }) {
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder={tab === "email" ? "vd: user@ai-llm.vn" : "vd: 0912 345 678"}
+          placeholder={tab === "email" ? "vd: user@ndatrace.vn" : "vd: 0912 345 678"}
           type={tab === "email" ? "email" : "tel"}
           className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-brand-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-colors"
         />
@@ -125,18 +125,18 @@ function TermsModal({ onClose }: { onClose: () => void }) {
     <Modal title="Điều khoản & Điều kiện" onClose={onClose}>
       <div className="prose prose-sm max-w-none text-gray-600 dark:text-gray-400 space-y-4 text-sm leading-relaxed">
         <p className="font-semibold text-gray-800 dark:text-gray-200">1. Điều khoản sử dụng</p>
-        <p>Bằng cách truy cập và sử dụng hệ thống AI LLM, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu trong tài liệu này.</p>
+        <p>Bằng cách truy cập và sử dụng hệ thống NDATrace, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu trong tài liệu này.</p>
         <p className="font-semibold text-gray-800 dark:text-gray-200">2. Quyền và nghĩa vụ người dùng</p>
         <p>Người dùng có trách nhiệm bảo mật tài khoản, không chia sẻ thông tin đăng nhập với bên thứ ba và thông báo ngay khi phát hiện truy cập trái phép.</p>
         <p className="font-semibold text-gray-800 dark:text-gray-200">3. Bảo mật dữ liệu</p>
-        <p>AI LLM cam kết bảo vệ dữ liệu của người dùng theo quy định pháp luật hiện hành về bảo vệ dữ liệu cá nhân. Dữ liệu được mã hóa và lưu trữ an toàn.</p>
+        <p>NDATrace cam kết bảo vệ dữ liệu của người dùng theo quy định pháp luật hiện hành về bảo vệ dữ liệu cá nhân. Dữ liệu được mã hóa và lưu trữ an toàn.</p>
         <p className="font-semibold text-gray-800 dark:text-gray-200">4. Giới hạn trách nhiệm</p>
         <p>Hệ thống không chịu trách nhiệm đối với các thiệt hại phát sinh từ việc sử dụng sai mục đích hoặc vi phạm điều khoản sử dụng.</p>
         <p className="font-semibold text-gray-800 dark:text-gray-200">5. Thay đổi điều khoản</p>
         <p>Chúng tôi có thể cập nhật điều khoản này theo thời gian. Người dùng sẽ được thông báo qua email khi có thay đổi quan trọng.</p>
       </div>
       <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800">
-        <p className="text-[14px] text-gray-400 text-center">Cập nhật lần cuối: 01/01/2026 · Phiên bản 1.0</p>
+        <p className="text-[14px] text-gray-400 text-center">Cập nhật lần cuối: 01/01/2026 · Phiên bản 2.1</p>
       </div>
     </Modal>
   );
@@ -145,16 +145,17 @@ function TermsModal({ onClose }: { onClose: () => void }) {
 // ── Instruction Modal ─────────────────────────────────────────────────────────
 function InstructionModal({ onClose }: { onClose: () => void }) {
   const steps = [
-    { step: "01", title: "Tạo API Key", desc: "Vào Tích hợp hệ thống → API Keys để tạo mới." },
-    { step: "02", title: "Khai báo mô hình", desc: "Vào Mô hình AI → Đào tạo mới để thêm mô hình." },
-    { step: "03", title: "Fine-tuning", desc: "Tùy chỉnh mô hình theo dữ liệu của bạn." },
-    { step: "04", title: "Đánh giá mô hình", desc: "Chạy bài test để đánh giá hiệu suất." },
-    { step: "05", title: "Triển khai API", desc: "Kết nối mô hình với ứng dụng của bạn." },
+    { step: "01", title: "Đăng ký doanh nghiệp", desc: "Vào Quản lý tổ chức → Đăng ký doanh nghiệp để thêm mới." },
+    { step: "02", title: "Khai báo sản phẩm", desc: "Vào Quản lý sản phẩm → Tạo sản phẩm và điền đầy đủ thông tin." },
+    { step: "03", title: "Tạo chuỗi cung ứng", desc: "Vào Chuỗi cung ứng → Tạo chuỗi mới và liên kết sản phẩm." },
+    { step: "04", title: "Khai báo sự kiện", desc: "Ghi nhận các sự kiện (sản xuất, vận chuyển, lưu kho) theo chuỗi." },
+    { step: "05", title: "Tạo QR truy xuất", desc: "Vào Quản lý sản phẩm → QR truy xuất để tạo mã cho lô hàng." },
+    { step: "06", title: "Cấp chứng nhận", desc: "Vào Chứng nhận → Cấp chứng nhận cho doanh nghiệp đủ tiêu chuẩn." },
   ];
 
   return (
     <Modal title="Hướng dẫn sử dụng" onClose={onClose}>
-      <p className="text-[14px] text-gray-500 dark:text-gray-400 mb-4">Làm theo các bước dưới đây để bắt đầu sử dụng hệ thống AI LLM.</p>
+      <p className="text-[14px] text-gray-500 dark:text-gray-400 mb-4">Làm theo các bước dưới đây để bắt đầu sử dụng hệ thống NDATrace.</p>
       <div className="space-y-3">
         {steps.map((s) => (
           <div key={s.step} className="flex gap-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800">
@@ -170,7 +171,7 @@ function InstructionModal({ onClose }: { onClose: () => void }) {
       </div>
       <div className="mt-5 p-3.5 rounded-xl bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800">
         <p className="text-[14px] text-brand-700 dark:text-brand-300 font-medium">Cần hỗ trợ thêm?</p>
-        <p className="text-[14px] text-brand-600 dark:text-brand-400 mt-0.5">Liên hệ: support@ai-llm.vn · Hotline: 1900 xxxx</p>
+        <p className="text-[14px] text-brand-600 dark:text-brand-400 mt-0.5">Liên hệ: support@ndatrace.vn · Hotline: 1800 xxxx</p>
       </div>
     </Modal>
   );
@@ -241,30 +242,30 @@ export default function UserMenu() {
             open ? "bg-gray-100 dark:bg-gray-800" : "hover:bg-gray-50 dark:hover:bg-gray-800"
           }`}
         >
-          <div className="size-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-[14px] font-bold">
+          <div className="size-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-[14px] font-bold shrink-0">
             A
           </div>
-          <div className="text-left">
+          <div className="text-left hidden sm:block">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none">Admin</p>
             <p className="text-[14px] text-gray-400">Quản trị viên</p>
           </div>
           <ChevronDown
             size={14}
-            className={`text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform duration-200 hidden sm:block ${open ? "rotate-180" : ""}`}
           />
         </button>
 
         {/* Dropdown */}
         {open && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50">
+          <div className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden z-50">
             {/* User info */}
             <div className="px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-              <div className="size-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow">
+              <div className="size-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow">
                 A
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin</p>
-                <p className="text-[14px] text-gray-400">admin@ai-llm.vn</p>
+                <p className="text-[14px] text-gray-400">admin@ndatrace.vn</p>
               </div>
             </div>
 

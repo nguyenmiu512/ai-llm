@@ -1,64 +1,85 @@
-import Link from "next/link";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import StatCard from "@/components/dashboard/StatCard";
+import InspectionPerformanceChart from "@/components/dashboard/InspectionPerformanceChart";
+import WardDistributionChart from "@/components/dashboard/WardDistributionChart";
+import InspectionReminder from "@/components/dashboard/InspectionReminder";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import { Building2, FileCheck2, ClipboardList, AlertTriangle, FileText, ShieldAlert } from "lucide-react";
 
-export default function Page() {
+export default function DashboardPage() {
   return (
-    <div className="p-4 min-h-screen flex flex-col">
+    <DashboardLayout>
+      {/* Welcome */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Chào mừng quay trở lại!</p>
+          <h1 className="text-2xl font-bold text-gray-900">Tổng quan hệ thống</h1>
+          <p className="text-sm text-gray-500 mt-1">Quản lý an toàn thực phẩm toàn diện – Tháng 3, 2026</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Link
-          href="/quan-tri/doi-tac"
-          className="bg-white dark:bg-gray-900 rounded-xl p-4 transition-all duration-200 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Đối tác</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Quản lý thông tin đối tác</p>
-        </Link>
-
-        <Link
-          href="/settings/api-keys"
-          className="bg-white dark:bg-gray-900 rounded-xl p-4 transition-all duration-200 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">API Keys</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Quản lý API keys</p>
-        </Link>
-
-        <Link
-          href="/settings/theme"
-          className="bg-white dark:bg-gray-900 rounded-xl p-4 transition-all duration-200 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Giao diện</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Tùy chỉnh giao diện</p>
-        </Link>
-
-        <Link
-          href="/data/documents"
-          className="bg-white dark:bg-gray-900 rounded-xl p-4 transition-all duration-200 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Tài liệu</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Quản lý tài liệu</p>
-        </Link>
-
-        <Link
-          href="/data/datasets"
-          className="bg-white dark:bg-gray-900 rounded-xl p-4 transition-all duration-200 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Bộ dữ liệu</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Quản lý bộ dữ liệu</p>
-        </Link>
-
-        <Link
-          href="/chat/new"
-          className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-4 transition-all duration-200 border border-brand-200 dark:border-brand-800 hover:border-brand-300 dark:hover:border-brand-700 group"
-        >
-          <h2 className="text-xl font-semibold text-brand-700 dark:text-brand-400 group-hover:text-brand-600 transition-colors">Chat mới</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Bắt đầu cuộc trò chuyện mới</p>
-        </Link>
+      {/* Stat Cards – 6 cards */}
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+        <StatCard
+          title="Cơ sở đang quản lý"
+          value="3,842"
+          change={2.4}
+          subtitle="+86 cơ sở mới tháng này"
+          icon={<Building2 size={20} className="text-blue-600" />}
+          iconBg="bg-blue-50"
+        />
+        <StatCard
+          title="Giấy chứng nhận ATTP"
+          value="2,561"
+          change={1.8}
+          subtitle="+34 cấp mới, 12 hết hạn"
+          icon={<FileCheck2 size={20} className="text-brand-600" />}
+          iconBg="bg-brand-50"
+        />
+        <StatCard
+          title="Cuộc kiểm tra"
+          value="748"
+          change={5.1}
+          subtitle="+62 cuộc kiểm tra tháng này"
+          icon={<ClipboardList size={20} className="text-violet-600" />}
+          iconBg="bg-violet-50"
+        />
+        <StatCard
+          title="Vụ ngộ độc thực phẩm"
+          value="14"
+          change={-3.2}
+          subtitle="Giảm 3 vụ so với tháng trước"
+          icon={<AlertTriangle size={20} className="text-amber-600" />}
+          iconBg="bg-amber-50"
+        />
+        <StatCard
+          title="Hồ sơ tự công bố"
+          value="1,284"
+          change={3.7}
+          subtitle="+48 hồ sơ mới tháng này"
+          icon={<FileText size={20} className="text-teal-600" />}
+          iconBg="bg-teal-50"
+        />
+        <StatCard
+          title="Cơ sở vi phạm"
+          value="127"
+          change={-8.5}
+          subtitle="Giảm 12 so với tháng trước"
+          icon={<ShieldAlert size={20} className="text-red-600" />}
+          iconBg="bg-red-50"
+        />
       </div>
-    </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <InspectionPerformanceChart />
+        <WardDistributionChart />
+      </div>
+
+      {/* Inspection Reminder + Recent Activity */}
+      <div className="grid grid-cols-2 gap-4">
+        <InspectionReminder />
+        <RecentActivity />
+      </div>
+    </DashboardLayout>
   );
 }
