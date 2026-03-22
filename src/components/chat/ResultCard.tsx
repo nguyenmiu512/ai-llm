@@ -8,9 +8,10 @@ import {
 } from "recharts";
 import {
   BarChart2, TrendingUp as LineIcon, PieChart as PieIcon, AlignLeft,
-  Maximize2, X, ChevronDown, TrendingUp, TrendingDown,
-  Bookmark, Share2, MoreHorizontal, Download, Filter, CalendarDays,
+  ChevronDown, TrendingUp, TrendingDown,
+  Bookmark, Share2, MoreHorizontal, ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface StatItem {
@@ -33,6 +34,7 @@ interface ResultCardProps {
   stats: StatItem[];
   defaultChartType?: ChartType;
   chartData?: DataPoint[];
+  sessionId?: string;
 }
 
 // ── Default fallback data ─────────────────────────────────────────────────────
@@ -162,9 +164,8 @@ const CHART_TABS: { type: ChartType; icon: any; label: string }[] = [
 ];
 
 // ── ResultCard ────────────────────────────────────────────────────────────────
-export default function ResultCard({ title, stats, defaultChartType = "bar", chartData }: ResultCardProps) {
+export default function ResultCard({ title, stats, defaultChartType = "bar", chartData, sessionId }: ResultCardProps) {
   const [chartType, setChartType] = useState<ChartType>(defaultChartType);
-  const [advanced, setAdvanced] = useState(false);
 
   const data = chartData ?? FALLBACK_DATA;
 
@@ -179,12 +180,14 @@ export default function ResultCard({ title, stats, defaultChartType = "bar", cha
             <h3 className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{title}</h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => setAdvanced(true)}
-              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-md transition-colors"
-            >
-              <Maximize2 size={13} /><span>Mở rộng</span>
-            </button>
+            {sessionId && (
+              <Link
+                href={`/bao-cao-ai/chi-tiet/${sessionId}`}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+              >
+                <ArrowRight size={13} /><span>Báo cáo nâng cao</span>
+              </Link>
+            )}
             <div className="flex rounded-md overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ml-1">
               <button className="hidden sm:flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors border-r border-gray-100 dark:border-gray-700">
                 Lưu báo cáo
@@ -240,73 +243,6 @@ export default function ResultCard({ title, stats, defaultChartType = "bar", cha
         </div>
       </div>
 
-      {/* Advanced View Modal */}
-      {advanced && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAdvanced(false)} />
-          <div className="relative w-full sm:max-w-5xl max-h-[92dvh] sm:max-h-[90vh] bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-
-            {/* Modal Header */}
-            <div className="flex items-start justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-              <div className="flex items-center gap-2 min-w-0 mr-2">
-                <div className="w-2 h-2 rounded-full bg-brand-500 shrink-0" />
-                <h2 className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 leading-snug">{title}</h2>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <CalendarDays size={13} /> Q1/2026
-                </button>
-                <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <Filter size={13} /> Bộ lọc
-                </button>
-                <button className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/20 rounded-lg hover:bg-brand-100 transition-colors">
-                  <Download size={13} />
-                  <span className="hidden sm:inline">Xuất PNG</span>
-                </button>
-                <button onClick={() => setAdvanced(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-1">
-                  <X size={16} className="text-gray-500" />
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-y-auto flex-1 p-4 sm:p-6">
-              {/* KPI row */}
-              <div className={`grid gap-3 sm:gap-8 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-100 dark:border-gray-800 ${stats.length <= 2 ? "grid-cols-2" : "grid-cols-3 sm:flex sm:items-center"}`}>
-                {stats.map((stat, i) => (
-                  <div key={i} className="flex flex-col min-w-0">
-                    <span className="text-xs font-medium text-gray-400 uppercase tracking-tight mb-0.5 truncate">{stat.label}</span>
-                    <div className="flex flex-wrap items-baseline gap-1 sm:gap-1.5">
-                      <span className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</span>
-                      {stat.change && (
-                        <span className={`flex items-center text-xs font-bold ${stat.isUp ? "text-green-600" : "text-red-500"}`}>
-                          {stat.isUp ? <TrendingUp size={10} className="mr-0.5" /> : <TrendingDown size={10} className="mr-0.5" />}
-                          {stat.change}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Chart type tabs */}
-              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-4 sm:mb-5">
-                {CHART_TABS.map(({ type, icon: Icon, label }) => (
-                  <button key={type} onClick={() => setChartType(type)}
-                    className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      chartType === type
-                        ? "bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800"
-                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent"
-                    }`}>
-                    <Icon size={13} /><span>{label}</span>
-                  </button>
-                ))}
-              </div>
-
-              <ChartPanel type={chartType} height={280} data={data} />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

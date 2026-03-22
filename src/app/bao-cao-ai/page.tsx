@@ -410,7 +410,9 @@ export default function BaoCaoAIPage() {
   const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [overlay, setOverlay] = useState<{ state: OverlayState; steps: AnalysisStep[] } | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectHistory = (id: string) => {
     setActiveHistoryId(id);
@@ -437,11 +439,12 @@ export default function BaoCaoAIPage() {
 
   const handleSend = (text?: string, questionId?: string) => {
     const content = text || input;
-    if (!content.trim()) return;
+    if (!content.trim() && attachedFiles.length === 0) return;
 
     const ts = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
     setMessages(prev => [...prev, { id: Date.now().toString(), role: "user", content, timestamp: ts }]);
     setInput("");
+    setAttachedFiles([]);
 
     const cfg = questionId ? QUESTION_CONFIGS[questionId] : undefined;
     const stepLabels = cfg?.steps ?? ["Đang truy xuất dữ liệu...", "Phân tích và phân loại kết quả", "Tổng hợp báo cáo"];
@@ -718,6 +721,7 @@ export default function BaoCaoAIPage() {
                       stats={m.analysis.stats}
                       defaultChartType={m.analysis.chartType}
                       chartData={m.analysis.chartData}
+                      sessionId={m.sessionId}
                     />
                   </div>
                 )}
@@ -736,8 +740,43 @@ export default function BaoCaoAIPage() {
           <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
             <div className="max-w-4xl mx-auto relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500 to-violet-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-1000 group-hover:duration-200" />
-              <div className="relative flex items-end gap-2 sm:gap-3 p-2 sm:p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl shadow-black/5">
-                <button className="p-2 sm:p-3 text-gray-400 hover:text-brand-500 transition-colors rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/20">
+              <div className="relative flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl shadow-black/5">
+                {/* Attached files preview */}
+                {attachedFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 px-3 pt-3">
+                    {attachedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800 rounded-lg max-w-[180px]">
+                        <Paperclip size={11} className="text-brand-500 shrink-0" />
+                        <span className="text-xs font-medium text-brand-700 dark:text-brand-400 truncate">{file.name}</span>
+                        <button
+                          onClick={() => setAttachedFiles((prev) => prev.filter((_, j) => j !== i))}
+                          className="shrink-0 text-brand-400 hover:text-red-500 transition-colors"
+                        >
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-end gap-2 sm:gap-3 p-2 sm:p-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setAttachedFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 sm:p-3 text-gray-400 hover:text-brand-500 transition-colors rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/20"
+                  title="Đính kèm tệp"
+                >
                   <Paperclip size={18} />
                 </button>
                 <textarea
@@ -755,11 +794,12 @@ export default function BaoCaoAIPage() {
                 />
                 <button
                   onClick={() => handleSend()}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() && attachedFiles.length === 0}
                   className="p-2 sm:p-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-all disabled:opacity-30 disabled:grayscale shadow-lg shadow-brand-600/20"
                 >
                   <Send size={18} />
                 </button>
+                </div>
               </div>
             </div>
           </div>
