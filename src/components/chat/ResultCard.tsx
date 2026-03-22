@@ -248,9 +248,10 @@ export default function ResultCard({ title, stats, defaultChartType = "bar", cha
             {sessionId && (
               <Link
                 href={`/bao-cao-ai/chi-tiet/${sessionId}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 rounded-lg text-xs font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-colors"
               >
-                <ArrowRight size={13} /><span>Báo cáo nâng cao</span>
+                <span>Báo cáo nâng cao</span>
+                <ArrowRight size={12} />
               </Link>
             )}
             <div className="flex rounded-md overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ml-1">

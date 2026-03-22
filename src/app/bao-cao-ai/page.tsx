@@ -15,8 +15,6 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import AIAnalysisSteps from "@/components/chat/AIAnalysisSteps";
 import ResultCard, { DataPoint, ChartType, StatItem } from "@/components/chat/ResultCard";
 import SuggestedQuestions from "@/components/chat/SuggestedQuestions";
@@ -779,17 +777,6 @@ export default function BaoCaoAIPage() {
                         )}
 
                         {/* Detail report chip */}
-                        {m.sessionId && (
-                          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                            <Link
-                              href={`/bao-cao-ai/chi-tiet/${m.sessionId}`}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 rounded-lg text-xs font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-colors"
-                            >
-                              Xem báo cáo chi tiết
-                              <ArrowRight size={12} />
-                            </Link>
-                          </div>
-                        )}
                       </div>
                     )}
 
