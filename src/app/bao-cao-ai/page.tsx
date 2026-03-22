@@ -43,6 +43,7 @@ type Message = {
 
 // ── Question Configs ─────────────────────────────────────────────────────────
 type QuestionConfig = {
+  title: string;
   summary: string;
   steps: string[];
   stats: StatItem[];
@@ -52,6 +53,7 @@ type QuestionConfig = {
 
 const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
   "q-monthly-violations": {
+    title: "Vi phạm chuỗi cung ứng Q1/2026 theo tháng",
     summary: "Trong Q1/2026, tổng cộng 2,661 vi phạm được ghi nhận. Tháng 2 là đỉnh điểm với 1,024 vi phạm — tăng 18.3% so với cùng kỳ năm 2025. Xu hướng giảm nhẹ trong tháng 3 cho thấy hiệu quả kiểm soát đang cải thiện.",
     steps: ["Truy xuất dữ liệu vi phạm Q1/2026 và Q1/2025", "Phân tích theo từng tháng và so sánh cùng kỳ", "Tổng hợp xu hướng và chỉ số biến động"],
     stats: [
@@ -70,6 +72,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
     ],
   },
   "q-label-compliance": {
+    title: "Tuân thủ tem nhãn của doanh nghiệp xuất khẩu",
     summary: "Tỷ lệ tuân thủ tem nhãn của các doanh nghiệp xuất khẩu đạt 73.4% trong Q1/2026. Nhóm thủy sản đạt cao nhất (81.2%), trong khi nhóm rau củ quả còn thấp nhất (61.7%). Cần tăng cường tập huấn cho nhóm sản phẩm chưa đạt chuẩn.",
     steps: ["Rà soát hồ sơ tem nhãn của doanh nghiệp xuất khẩu", "Phân loại theo nhóm ngành hàng", "Tính tỷ lệ tuân thủ và xác định nhóm cần cải thiện"],
     stats: [
@@ -86,6 +89,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
     ],
   },
   "q-traceability-march": {
+    title: "Sự kiện truy xuất nguồn gốc – Tháng 3/2026",
     summary: "Tháng 3/2026 ghi nhận 4,218 sự kiện truy xuất nguồn gốc, tăng 22.4% so với tháng 2. Nhóm thủy sản dẫn đầu với 1,482 sự kiện. Hệ thống quét mã QR được triển khai rộng hơn là nguyên nhân chính khiến số lượng sự kiện tăng mạnh.",
     steps: ["Truy xuất log sự kiện tháng 3/2026 từ hệ thống", "Phân loại theo nhóm sản phẩm", "Thống kê và so sánh với tháng trước"],
     stats: [
@@ -103,6 +107,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
     ],
   },
   "q-compare-quarters": {
+    title: "So sánh hiệu suất xử lý vi phạm Q4/2025 – Q1/2026",
     summary: "Hiệu suất xử lý vi phạm Q1/2026 cải thiện đáng kể so với Q4/2025. Tỷ lệ xử lý tăng từ 84.6% lên 87.4%. Thời gian xử lý trung bình giảm từ 5.2 ngày xuống 4.1 ngày. Tháng 1/2026 có sự tăng đột biến do chuyển tiếp hồ sơ tồn đọng từ Q4.",
     steps: ["Tổng hợp dữ liệu xử lý vi phạm Q4/2025", "Tổng hợp dữ liệu Q1/2026 tương ứng", "Phân tích hiệu suất và chỉ số cải thiện"],
     stats: [
@@ -121,6 +126,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
     ],
   },
   "q-risk-by-region": {
+    title: "Phân bổ cơ sở rủi ro cao theo phường – Quận 1",
     summary: "Quận 1 hiện có 84 cơ sở xếp loại rủi ro cao, tập trung chủ yếu tại Phường Bến Nghé (28 cơ sở) và Phường Đa Kao (21 cơ sở). Đây là khu vực có mật độ kinh doanh thực phẩm cao và tần suất kiểm tra còn thấp so với mức độ rủi ro.",
     steps: ["Phân loại cơ sở kinh doanh theo mức độ rủi ro", "Lọc nhóm rủi ro cao trong quận 1", "Phân tích phân bổ theo phường/xã"],
     stats: [
@@ -138,6 +144,7 @@ const QUESTION_CONFIGS: Record<string, QuestionConfig> = {
     ],
   },
   "q-export-compliance": {
+    title: "Tỷ lệ lô hàng xuất khẩu đạt chuẩn ATTP (6 tháng gần nhất)",
     summary: "Tỷ lệ lô hàng xuất khẩu đạt chuẩn ATTP đạt 91.3% trong 6 tháng gần nhất (T10/2025–T3/2026). Tháng 1/2026 ghi nhận mức thấp nhất 88.7% do ảnh hưởng mùa vụ. Xu hướng phục hồi tích cực từ tháng 2 cho thấy các biện pháp cải thiện đang phát huy hiệu quả.",
     steps: ["Truy xuất dữ liệu kiểm định lô hàng xuất khẩu 6 tháng gần nhất", "Đối chiếu với tiêu chuẩn chứng nhận ATTP", "Tính tỷ lệ đạt và phân tích xu hướng"],
     stats: [
@@ -409,10 +416,24 @@ export default function BaoCaoAIPage() {
   const [activeHistoryId, setActiveHistoryId] = useState("h1");
   const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [titleExpanded, setTitleExpanded] = useState(false);
   const [overlay, setOverlay] = useState<{ state: OverlayState; steps: AnalysisStep[] } | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSelectHistory = (id: string) => {
     setActiveHistoryId(id);
@@ -466,9 +487,10 @@ export default function BaoCaoAIPage() {
         { label: "Doanh nghiệp", value: "1,284" },
       ];
       const responseSummary = cfg?.summary ?? "Đã hoàn thành phân tích. Dữ liệu đã được tổng hợp từ hệ thống.";
+      const analysisTitle = cfg?.title ?? (content.length > 50 ? content.slice(0, 50) + "…" : content);
       saveSession({
         id: sessionId,
-        title: "Kết quả phân tích — " + content.slice(0, 60),
+        title: analysisTitle,
         query: content,
         summary: responseSummary,
         timestamp: ts2,
@@ -482,7 +504,7 @@ export default function BaoCaoAIPage() {
         content: responseSummary,
         timestamp: ts2,
         analysis: {
-          title: "Kết quả phân tích — " + content.slice(0, 60),
+          title: analysisTitle,
           stats: responseStats,
           chartType: cfg?.chartType,
           chartData: cfg?.chartData,
@@ -493,7 +515,7 @@ export default function BaoCaoAIPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-[calc(100dvh-64px)] -m-3 sm:-m-5 lg:-m-6 bg-white dark:bg-gray-950 overflow-hidden">
+      <div className="ai-report flex h-[calc(100dvh-64px)] -m-3 sm:-m-5 lg:-m-6 bg-white dark:bg-gray-950 overflow-hidden">
 
         {/* Mobile backdrop */}
         {sidebarOpen && (
@@ -619,22 +641,90 @@ export default function BaoCaoAIPage() {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-950">
           {/* Top Bar inside Chat */}
-          <header className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              {/* Mobile sidebar toggle */}
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="md:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 shrink-0"
-              >
-                <Menu size={18} />
-              </button>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand-500/20">
+          <header className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 shrink-0 gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0">
                 <Bot size={16} />
               </div>
-              <h2 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 truncate">Phân tích vi phạm chuỗi cung ứng Q1/2026</h2>
+              {/* Title — max 2 lines, click to expand */}
+              <button
+                onClick={() => setTitleExpanded(v => !v)}
+                className="text-left min-w-0 flex-1"
+                title={titleExpanded ? "Thu gọn" : "Xem đầy đủ"}
+              >
+                <h2 className={`text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 leading-snug ${titleExpanded ? "" : "line-clamp-2"}`}>
+                  Phân tích vi phạm chuỗi cung ứng Q1/2026
+                </h2>
+              </button>
+              {/* Mobile dropdown trigger */}
+              <div className="relative md:hidden shrink-0 ml-8" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(v => !v)}
+                  className={`p-1.5 rounded-lg transition-colors ${dropdownOpen ? "bg-brand-50 dark:bg-brand-900/20 text-brand-600" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"}`}
+                >
+                  <Menu size={18} />
+                </button>
+
+                {/* Dropdown panel */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    {/* Tabs */}
+                    <div className="flex bg-gray-50 dark:bg-gray-800/60 p-1.5 gap-1 border-b border-gray-100 dark:border-gray-800">
+                      <button
+                        onClick={() => setActiveTab("history")}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === "history" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                      >
+                        Lịch sử
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("saved")}
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === "saved" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                      >
+                        Đã lưu
+                      </button>
+                    </div>
+
+                    {/* Items */}
+                    <div className="max-h-72 overflow-y-auto p-1.5 space-y-0.5">
+                      {activeTab === "history" && historyItems.map(item => {
+                        const isActive = activeHistoryId === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => { handleSelectHistory(item.id); setDropdownOpen(false); }}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl transition-all ${isActive ? "bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-400" : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"}`}
+                          >
+                            <p className="text-xs font-semibold line-clamp-2 leading-snug">{item.title}</p>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                              <span className="flex items-center gap-1"><Clock size={9} />{item.time}</span>
+                              <span className="flex items-center gap-1"><MessageSquare size={9} />{item.messages}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                      {activeTab === "saved" && savedItems.map(item => {
+                        const isActive = activeSavedId === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => { handleSelectSaved(item.id); setDropdownOpen(false); }}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl transition-all ${isActive ? "bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-400" : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-xs font-semibold line-clamp-2 leading-snug">{item.title}</p>
+                              <span className="shrink-0 px-1.5 py-0.5 bg-brand-50 dark:bg-brand-900/20 text-brand-600 text-xs font-semibold rounded border border-brand-100">{item.tag}</span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">{item.savedAt}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-brand-600/10">
+              <button className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all">
                 <Plus size={14} />
                 <span>Tạo chat mới</span>
               </button>
@@ -758,7 +848,7 @@ export default function BaoCaoAIPage() {
                     ))}
                   </div>
                 )}
-                <div className="flex items-end gap-2 sm:gap-3 p-2 sm:p-3">
+                <div className="flex items-center sm:items-end gap-2 sm:gap-3 p-2 sm:p-3">
                 <input
                   ref={fileInputRef}
                   type="file"

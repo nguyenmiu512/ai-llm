@@ -45,6 +45,24 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 
+/* AI report page — all font sizes +1px */
+.ai-report {
+  --font-size-xs:   0.9375rem;  /* 15px (was 14px) */
+  --font-size-sm:   1.0625rem;  /* 17px (was 16px) */
+  --font-size-base: 1.1875rem;  /* 19px (was 18px) */
+  --font-size-lg:   1.3125rem;  /* 21px (was 20px) */
+  --font-size-xl:   1.4375rem;  /* 23px (was 22px) */
+  --font-size-2xl:  1.6875rem;  /* 27px (was 26px) */
+  --font-size-3xl:  2.0625rem;  /* 33px (was 32px) */
+  --font-size-4xl:  2.4375rem;  /* 39px (was 38px) */
+}
+
+/* Pointer cursor on all interactive elements */
+a, button, [role="button"], label[for], summary, select,
+[onClick], [tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

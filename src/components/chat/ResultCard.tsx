@@ -5,6 +5,7 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LabelList, Legend,
+  // Legend kept for line chart comparison
 } from "recharts";
 import {
   BarChart2, TrendingUp as LineIcon, PieChart as PieIcon, AlignLeft,
@@ -53,12 +54,22 @@ const TOOLTIP_STYLE = {
   boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.07)",
 };
 
-// ── Bar top label ─────────────────────────────────────────────────────────────
+// ── Number formatter ──────────────────────────────────────────────────────────
+function formatValue(n: number): string {
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + " tỷ";
+  if (n >= 1_000_000)     return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "tr";
+  if (n >= 10_000)        return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+  if (!Number.isInteger(n)) return n.toFixed(1); // keep decimal point (not Vietnamese comma)
+  return n.toLocaleString("vi-VN");
+}
+
+// ── Bar top label — only renders when bar is wide enough ─────────────────────
 function BarTopLabel(props: any) {
   const { x, y, width, value } = props;
+  if (width < 28) return null; // skip label when bar too narrow
   return (
-    <text x={x + width / 2} y={y - 4} fill="#6b7280" fontSize={11} textAnchor="middle" fontWeight={500}>
-      {value}
+    <text x={x + width / 2} y={y - 4} fill="#6b7280" fontSize={10} textAnchor="middle" fontWeight={500}>
+      {formatValue(Number(value))}
     </text>
   );
 }
@@ -66,17 +77,33 @@ function BarTopLabel(props: any) {
 // ── Chart panel ───────────────────────────────────────────────────────────────
 function ChartPanel({ type, height = 200, data }: { type: ChartType; height?: number; data: DataPoint[] }) {
   const hasComparison = data.some((d) => d.prev !== undefined && d.prev !== 0);
+  const manyBars = data.length > 7;
 
   if (type === "bar") {
     return (
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={data} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: manyBars ? 6 : 20, right: 8, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#f3f4f6" }} />
+          <XAxis
+            dataKey="label"
+            tick={{ fontSize: manyBars ? 9 : 11, fill: "#9ca3af" }}
+            tickLine={false}
+            axisLine={false}
+            interval={0}
+            angle={manyBars ? -30 : 0}
+            textAnchor={manyBars ? "end" : "middle"}
+            height={manyBars ? 36 : 20}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: "#9ca3af" }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) => formatValue(v)}
+            width={manyBars ? 40 : 32}
+          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#f3f4f6" }} formatter={(v: any) => [formatValue(Number(v)), "Giá trị"]} />
           <Bar dataKey="value" name="Giá trị" fill="#1570ef" radius={[4, 4, 0, 0]}>
-            <LabelList content={<BarTopLabel />} />
+            {!manyBars && <LabelList content={<BarTopLabel />} />}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -88,12 +115,24 @@ function ChartPanel({ type, height = 200, data }: { type: ChartType; height?: nu
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 10, right: 8, left: -24, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ stroke: "#e5e7eb" }} />
+          <XAxis
+            dataKey="label"
+            tick={{ fontSize: data.length > 9 ? 9 : 11, fill: "#9ca3af" }}
+            tickLine={false}
+            axisLine={false}
+            interval={data.length > 12 ? 1 : 0}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: "#9ca3af" }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) => formatValue(v)}
+            width={40}
+          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ stroke: "#e5e7eb" }} formatter={(v: any) => [formatValue(Number(v))]} />
           {hasComparison && <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />}
           <Line type="monotone" dataKey="value" name="Kỳ này" stroke="#1570ef" strokeWidth={2.5}
-            dot={{ r: 3, fill: "#1570ef" }} activeDot={{ r: 5 }} />
+            dot={data.length > 12 ? false : { r: 3, fill: "#1570ef" }} activeDot={{ r: 5 }} />
           {hasComparison && (
             <Line type="monotone" dataKey="prev" name="Kỳ trước" stroke="#93c5fd" strokeWidth={2}
               strokeDasharray="4 2" dot={false} activeDot={{ r: 4 }} />
@@ -104,51 +143,77 @@ function ChartPanel({ type, height = 200, data }: { type: ChartType; height?: nu
   }
 
   if (type === "pie") {
+    const total = data.reduce((s, d) => s + d.value, 0);
     const pieData = data.map((d) => ({ name: d.label, value: d.value }));
+    const manySlices = pieData.length > 5;
     return (
-      <ResponsiveContainer width="100%" height={height}>
-        <PieChart>
-          <Pie
-            data={pieData}
-            cx="50%"
-            cy="45%"
-            outerRadius={height / 2 - 36}
-            dataKey="value"
-            labelLine={false}
-          >
-            {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-          </Pie>
-          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, name: any) => [v, name]} />
-          <Legend
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ fontSize: 11, paddingTop: 4 }}
-            formatter={(value, entry: any) =>
-              `${value} (${entry.payload?.percent !== undefined ? (entry.payload.percent * 100).toFixed(1) : ""}%)`
-            }
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="flex flex-col sm:flex-row items-center gap-2">
+        <ResponsiveContainer width="100%" height={manySlices ? 160 : height}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              outerRadius={manySlices ? 65 : height / 2 - 30}
+              dataKey="value"
+              labelLine={false}
+            >
+              {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+            </Pie>
+            <Tooltip
+              contentStyle={TOOLTIP_STYLE}
+              formatter={(v: any, name: any) => [
+                `${formatValue(Number(v))} (${total > 0 ? ((Number(v) / total) * 100).toFixed(1) : 0}%)`,
+                name,
+              ]}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        {/* Legend list — always readable, no overlap */}
+        <div className={`w-full sm:w-auto space-y-1.5 ${manySlices ? "sm:max-w-[160px]" : ""}`}>
+          {pieData.map((item, i) => {
+            const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : "0";
+            return (
+              <div key={i} className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                  <span className="text-xs text-gray-600 dark:text-gray-400 truncate">{item.name}</span>
+                </div>
+                <span className="text-xs font-bold text-gray-800 dark:text-white shrink-0">{pct}%</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     );
   }
 
   // horizontal
+  const rowH = Math.max(32, Math.min(48, Math.floor((height * 1.4) / data.length)));
+  const maxLabelLen = Math.max(...data.map((d) => d.label.length));
+  const yAxisW = Math.min(120, Math.max(70, maxLabelLen * 6));
   return (
-    <ResponsiveContainer width="100%" height={Math.max(height, data.length * 38)}>
-      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 40, left: 4, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={Math.max(height, data.length * rowH)}>
+      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 48, left: 4, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-        <XAxis type="number" tick={{ fontSize: 11, fill: "#9ca3af" }} tickLine={false} axisLine={false} />
-        <YAxis
-          dataKey="label"
-          type="category"
+        <XAxis
+          type="number"
           tick={{ fontSize: 11, fill: "#9ca3af" }}
           tickLine={false}
           axisLine={false}
-          width={80}
+          tickFormatter={(v) => formatValue(v)}
         />
-        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#f3f4f6" }} />
+        <YAxis
+          dataKey="label"
+          type="category"
+          tick={{ fontSize: 10, fill: "#9ca3af" }}
+          tickLine={false}
+          axisLine={false}
+          width={yAxisW}
+        />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "#f3f4f6" }} formatter={(v: any) => [formatValue(Number(v)), "Giá trị"]} />
         <Bar dataKey="value" name="Giá trị" fill="#1570ef" radius={[0, 4, 4, 0]}>
-          <LabelList dataKey="value" position="right" style={{ fontSize: 11, fill: "#6b7280", fontWeight: 500 }} />
+          <LabelList dataKey="value" position="right" formatter={(v: any) => formatValue(Number(v))} style={{ fontSize: 11, fill: "#6b7280", fontWeight: 500 }} />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -200,22 +265,44 @@ export default function ResultCard({ title, stats, defaultChartType = "bar", cha
         </div>
 
         <div className="p-3 sm:p-5">
-          {/* KPI Grid — 2 cols on mobile if 3 stats, else 3 */}
-          <div className={`grid gap-2 sm:gap-6 mb-4 sm:mb-6 ${stats.length <= 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col min-w-0">
-                <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-tight mb-0.5 truncate">{stat.label}</span>
-                <div className="flex flex-wrap items-baseline gap-1 sm:gap-2">
-                  <span className="text-base sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight">{stat.value}</span>
-                  {stat.change && (
-                    <span className={`flex items-center text-xs font-bold ${stat.isUp ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
-                      {stat.isUp ? <TrendingUp size={10} className="mr-0.5" /> : <TrendingDown size={10} className="mr-0.5" />}
-                      {stat.change}
-                    </span>
-                  )}
+          {/* KPI — stacked rows on mobile, grid on sm+ */}
+          <div className="mb-4 sm:mb-6">
+            {/* Mobile: label left / value+change right */}
+            <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800 sm:hidden">
+              {stats.map((stat, i) => (
+                <div key={i} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-tight leading-snug">{stat.label}</span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">{stat.value}</span>
+                    {stat.change && (
+                      <span className={`flex items-center text-xs font-bold ${stat.isUp ? "text-green-600 dark:text-green-400" : stat.isUp === false ? "text-red-500 dark:text-red-400" : "text-gray-400"}`}>
+                        {stat.isUp === true && <TrendingUp size={10} className="mr-0.5" />}
+                        {stat.isUp === false && <TrendingDown size={10} className="mr-0.5" />}
+                        {stat.change}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            {/* Desktop: grid */}
+            <div className={`hidden sm:grid gap-6 ${stats.length <= 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+              {stats.map((stat, i) => (
+                <div key={i} className="flex flex-col min-w-0">
+                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-tight mb-0.5 truncate">{stat.label}</span>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">{stat.value}</span>
+                    {stat.change && (
+                      <span className={`flex items-center text-xs font-bold ${stat.isUp ? "text-green-600 dark:text-green-400" : stat.isUp === false ? "text-red-500 dark:text-red-400" : "text-gray-400"}`}>
+                        {stat.isUp === true && <TrendingUp size={10} className="mr-0.5" />}
+                        {stat.isUp === false && <TrendingDown size={10} className="mr-0.5" />}
+                        {stat.change}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Chart Type Toggle — wraps on mobile */}
@@ -232,7 +319,7 @@ export default function ResultCard({ title, stats, defaultChartType = "bar", cha
             ))}
           </div>
 
-          <ChartPanel type={chartType} height={200} data={data} />
+          <ChartPanel type={chartType} height={chartType === "pie" ? 180 : 200} data={data} />
         </div>
 
         {/* Action Bar */}
